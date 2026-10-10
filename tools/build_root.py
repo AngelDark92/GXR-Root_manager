@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # Version truth for this repository. tools/verify_release_version.py fails the run when the
 # manifest or a pushed tag disagrees with this constant; tools/release_policy.py is the only
 # writer.
-VERSION = "0.5.1"
+VERSION = "0.6.0"
 BUILD_ROOT = ROOT.parent / f"{ROOT.name}-builds"
 DEFAULT_OUTPUT = BUILD_ROOT / "build"
 APK_NAME = f"GalaxyXR-Root-Manager-root-{VERSION}.apk"
