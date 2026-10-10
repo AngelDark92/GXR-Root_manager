@@ -1,0 +1,47 @@
+{
+  "created_utc": "2026-10-08T11:41:41.520202+00:00",
+  "kind": "external_bootstrap_preflight",
+  "serial": "R3GYB09JA5E",
+  "adb": {
+    "path": "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+    "bytes": 8485016,
+    "sha256": "957e46b8615f7af5b7292a2ddabe98d2e61940c3fb2b0545756507f080613e71"
+  },
+  "transport_state": "unauthorized",
+  "commands": [
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "devices",
+        "-l"
+      ],
+      "returncode": 0,
+      "stdout": "List of devices attached\nR3GYB09JA5E            unauthorized transport_id:1\n\n",
+      "stderr": ""
+    }
+  ],
+  "live": {},
+  "root_executed": false,
+  "deployment_performed": false,
+  "bootstrap_ready": false,
+  "blockers": [
+    "ADB shell unavailable: unauthorized",
+    "Exact target/kernel artifact binding remains unverified",
+    "Partial-failure allocation lifetime and supervisor timeout are unverified",
+    "Authenticated verifier and broker lack device runtime validation"
+  ],
+  "historical_kernel_artifact": {
+    "path": "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root\\ghostlock-usb-debug\\03_TARGET-INFO\\kernel-Image",
+    "bytes": 48745844,
+    "sha256": "2bf9ede7f710ba7b873a33d427eee6d6eb390b2c7c8a1a3c7fd24a2197ff7f5a",
+    "bound_to_live_device": false
+  },
+  "supplied_app_report": {
+    "path": "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\evidence\\diagnostics-0.1.1-20261008T111240Z.json",
+    "bytes": 5188,
+    "sha256": "35ff1857732160d2ee82aecd71a64c851fe028cab8315c563d4d589da2887561",
+    "timestamp_utc": "2026-10-08T11:12:40.522Z",
+    "fingerprint": "samsung/xrvst2ue/xrvst2:14/UML2.260301.001/I610UEU2AZF3:user/release-keys",
+    "independent_live_capture": false
+  }
+}

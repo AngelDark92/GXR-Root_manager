@@ -1,0 +1,195 @@
+{
+  "artifact": "GalaxyXR-Root-Manager-diagnostics-0.1.1.apk",
+  "artifact_kind": "diagnostics_only",
+  "version": "0.1.1",
+  "root_execution": false,
+  "device_tests_run": false,
+  "signing": "local_development",
+  "ndk_revision": "27.2.12479018",
+  "java_source_target": 17,
+  "apk_sha256": "a437752302e516ccd6217f5f69df35c9a4104002a376275506705a741ca84307",
+  "apk_bytes": 37494,
+  "android_jar_sha256": "6cea1df3efb77103ac3e2beb9bf4718964b0e0869ab16d39d29d5cbae1c147ad",
+  "inputs_sha256": {
+    "app\\AndroidManifest.xml": "3c6ba0ca4ac4ab3a24e08019e6cd0db8f090ad21fd616b6b3432ed2f7aa111b3",
+    "app\\jni\\diagnostics.c": "1b06e2d9d420e006149db3fbe43aa427981e110cf6c05e3f935027e53492358c",
+    "app\\src\\dev\\galaxyxr\\rootmanager\\AccessProvider.java": "b58ae7e89c6368fa0922a82beb780044dad98a7a6b3e443e210a4608b68d11a4",
+    "app\\src\\dev\\galaxyxr\\rootmanager\\AccessStore.java": "1489928cf767266e1019bb731706dc3f59d89095771dce89a43bdc262255182e",
+    "app\\src\\dev\\galaxyxr\\rootmanager\\MainActivity.java": "587a008314c1715ae2856e71f7baeb08994f395e246eb68bbce5ba894d10c048",
+    "app\\src\\dev\\galaxyxr\\rootmanager\\NativeDiagnostics.java": "bf4fd5bec1b0c69ba025c383616879f4462acdf2738f47c6403e3f8d8812a02d",
+    "app\\src\\dev\\galaxyxr\\rootmanager\\SafetyPolicy.java": "96ce1521d2dceee5d7965196c6973d18a3984564a97a0f196465d819dc5a506b",
+    "app\\res\\drawable\\ic_launcher.xml": "7153e9f9af2dd27bc0b58142cd984d0c3819eef9881cb93883a3e34425c44308",
+    "app\\res\\values\\strings.xml": "8075ba606993aad173356148318b19eced55001c348bc64bafda13d739d73819",
+    "app\\assets\\target-profile.json": "dd9366f67dc065847124aecffb2fc502fa4b3bf2ff3b707731744fef045441eb"
+  },
+  "builder_sha256": "8f52ab8a369750fb26282d1fe6f4881749c75c5ca3488400377c0db408b5ad36",
+  "tools_sha256": {
+    "android_jar": "6cea1df3efb77103ac3e2beb9bf4718964b0e0869ab16d39d29d5cbae1c147ad",
+    "aapt2": "90481d1cbee3a170007701363391059ac3f9f22c4a4916b0423d591a22ac22d6",
+    "zipalign": "526ab698b9f57053d90e3241434c30b7e4c95c5cfe2764c67e96fb7adf35a89a",
+    "d8": "305622ad00535684534eb8f742cbf5e628a9abc09d8ea4d39d1babb95bf0cee5",
+    "apksigner": "00ef9948f843fe395d2440ae3ef41405b8040a6d5d46493bd1902ac0ee6deae7",
+    "java": "aae8568003e69de2fa69c1116c7770aa20549fd59211e7f9452fffb1ad9d4da6",
+    "javac": "c7098a029179a6b83e172c243a44785182c6c39f937912237b7341500451e067",
+    "jar": "57a6fa43cdb7f683cb2c4cee59b44f7dce2034999f5a3492a270543badd306b0",
+    "keytool": "46e57a17ab3a9ea132b1b1d9b8471a7e3a1d330088ab519fe2c160770aba5ffd",
+    "clang": "dcddc0336730b1053998e305cc41b93614c62209acb96b4875d44fc3a2b2d522"
+  },
+  "tool_versions": {
+    "java": "openjdk version \"22.0.1\" 2024-04-16\nOpenJDK Runtime Environment (build 22.0.1+8-16)\nOpenJDK 64-Bit Server VM (build 22.0.1+8-16, mixed mode, sharing)",
+    "javac": "javac 22.0.1",
+    "aapt2": "Android Asset Packaging Tool (aapt) 2.19-12874835",
+    "clang": "Android (12470979, based on r522817c) clang version 18.0.3 (https://android.googlesource.com/toolchain/llvm-project d8003a456d14a3deb8054cdaa529ffbf02d9b262)\nTarget: x86_64-w64-windows-gnu\nThread model: posix\nInstalledDir: D:/Angelo/Desktop/SteamLink-GalaxyXR-Windows-Toolkit-FULL/steamlink-patches/.android-sdk/ndk/27.2.12479018/toolchains/llvm/prebuilt/windows-x86_64/bin"
+  },
+  "commands": [
+    [
+      "F:\\Runtimes\\Java21\\bin\\java.exe",
+      "-version"
+    ],
+    [
+      "F:\\Runtimes\\Java21\\bin\\javac.exe",
+      "-version"
+    ],
+    [
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\apk-tools\\build-tools-35.0.1\\android-15\\aapt2.exe",
+      "version"
+    ],
+    [
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\steamlink-patches\\.android-sdk\\ndk\\27.2.12479018\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe",
+      "--version"
+    ],
+    [
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\steamlink-patches\\.android-sdk\\ndk\\27.2.12479018\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe",
+      "--target=aarch64-linux-android34",
+      "--sysroot=D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\steamlink-patches\\.android-sdk\\ndk\\27.2.12479018\\toolchains\\llvm\\prebuilt\\windows-x86_64\\sysroot",
+      "-shared",
+      "-fPIC",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wl,-z,max-page-size=16384",
+      "-Wl,-z,relro,-z,now",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\source-snapshot\\app\\jni\\diagnostics.c",
+      "-o",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\libgxr_diagnostics.so"
+    ],
+    [
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\apk-tools\\build-tools-35.0.1\\android-15\\aapt2.exe",
+      "compile",
+      "--dir",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\source-snapshot\\app\\res",
+      "-o",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\resources.zip"
+    ],
+    [
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\apk-tools\\build-tools-35.0.1\\android-15\\aapt2.exe",
+      "link",
+      "-o",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\base.apk",
+      "-I",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\.android-sdk\\platforms\\android-34\\android.jar",
+      "--manifest",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\source-snapshot\\app\\AndroidManifest.xml",
+      "--java",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\generated",
+      "--min-sdk-version",
+      "34",
+      "--target-sdk-version",
+      "34",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\resources.zip"
+    ],
+    [
+      "F:\\Runtimes\\Java21\\bin\\javac.exe",
+      "-encoding",
+      "UTF-8",
+      "-source",
+      "17",
+      "-target",
+      "17",
+      "-classpath",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\.android-sdk\\platforms\\android-34\\android.jar",
+      "-d",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\classes",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\source-snapshot\\app\\src\\dev\\galaxyxr\\rootmanager\\AccessProvider.java",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\source-snapshot\\app\\src\\dev\\galaxyxr\\rootmanager\\AccessStore.java",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\source-snapshot\\app\\src\\dev\\galaxyxr\\rootmanager\\MainActivity.java",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\source-snapshot\\app\\src\\dev\\galaxyxr\\rootmanager\\NativeDiagnostics.java",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\source-snapshot\\app\\src\\dev\\galaxyxr\\rootmanager\\SafetyPolicy.java",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\generated\\dev\\galaxyxr\\rootmanager\\R.java"
+    ],
+    [
+      "F:\\Runtimes\\Java21\\bin\\jar.exe",
+      "--create",
+      "--file",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\classes.jar",
+      "-C",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\classes",
+      "."
+    ],
+    [
+      "F:\\Runtimes\\Java21\\bin\\java.exe",
+      "-cp",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\apk-tools\\build-tools-35.0.1\\android-15\\lib\\d8.jar",
+      "com.android.tools.r8.D8",
+      "--min-api",
+      "34",
+      "--lib",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\.android-sdk\\platforms\\android-34\\android.jar",
+      "--output",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\dex",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\classes.jar"
+    ],
+    [
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\apk-tools\\build-tools-35.0.1\\android-15\\zipalign.exe",
+      "-f",
+      "-p",
+      "4",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\unsigned.apk",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\aligned.apk"
+    ],
+    [
+      "F:\\Runtimes\\Java21\\bin\\java.exe",
+      "-cp",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\apk-tools\\build-tools-35.0.1\\android-15\\lib\\apksigner.jar",
+      "com.android.apksigner.ApkSignerTool",
+      "sign",
+      "--ks",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\.local\\debug.keystore",
+      "--ks-key-alias",
+      "androiddebugkey",
+      "--ks-pass",
+      "env:GXR_DEBUG_KEY_PASSWORD",
+      "--key-pass",
+      "env:GXR_DEBUG_KEY_PASSWORD",
+      "--v4-signing-enabled",
+      "false",
+      "--out",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\signed.apk",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\aligned.apk"
+    ],
+    [
+      "F:\\Runtimes\\Java21\\bin\\java.exe",
+      "-cp",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\apk-tools\\build-tools-35.0.1\\android-15\\lib\\apksigner.jar",
+      "com.android.apksigner.ApkSignerTool",
+      "verify",
+      "--verbose",
+      "--print-certs",
+      "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n\\signed.apk"
+    ]
+  ],
+  "signature_verification": "Verifies\nVerified using v1 scheme (JAR signing): false\nVerified using v2 scheme (APK Signature Scheme v2): false\nVerified using v3 scheme (APK Signature Scheme v3): true\nVerified using v3.1 scheme (APK Signature Scheme v3.1): false\nVerified using v4 scheme (APK Signature Scheme v4): false\nVerified for SourceStamp: false\nNumber of signers: 1\nSigner #1 certificate DN: CN=Galaxy XR Root Manager Development\nSigner #1 certificate SHA-256 digest: 89f9fb69cdd7ca670d5f7b2f74306887dc564e556a93849bb4f9a00bb77e8539\nSigner #1 certificate SHA-1 digest: 44928b399b692cd2ba8ace333d6dbf7244020eda\nSigner #1 certificate MD5 digest: 4bf22764a14c39c187ab2a20ef98c5e3\nSigner #1 key algorithm: RSA\nSigner #1 key size (bits): 2048\nSigner #1 public key SHA-256 digest: 22ea9bea10211db9db194c7db11a611558899a51a706491d592304ad87e9266d\nSigner #1 public key SHA-1 digest: 2a86ca144676681231f83ef26cd78db687401f25\nSigner #1 public key MD5 digest: 46436660c0509ff37490be8a6649b7fb",
+  "apk_entries": [
+    "AndroidManifest.xml",
+    "res/drawable/ic_launcher.xml",
+    "resources.arsc",
+    "assets/target-profile.json",
+    "classes.dex",
+    "lib/arm64-v8a/libgxr_diagnostics.so",
+    "META-INF/ANDROIDD.SF",
+    "META-INF/ANDROIDD.RSA",
+    "META-INF/MANIFEST.MF"
+  ],
+  "staging_directory": "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\diagnostics-z2e66n6n"
+}

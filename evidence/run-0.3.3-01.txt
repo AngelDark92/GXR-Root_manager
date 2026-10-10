@@ -1,0 +1,8 @@
+# run Fri Oct 09 11:12:37 GMT+02:00 2026 fingerprint=samsung/xrvst2ue/xrvst2:14/UML2.260301.001/I610UEU2AZF3:user/release-keys
+[*] starting local adb server
+[*] discovering wireless debugging port (mDNS)
+    wireless debugging toggle: ON
+[*] wireless debugging port discovered via mDNS: 39797
+[*] connecting to local wireless debugging (localhost:39797)
+    failed to connect to localhost:39797
+[!] failed: IOException: local adb connect failed: failed to connect to localhost:39797

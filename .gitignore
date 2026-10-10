@@ -1,0 +1,5 @@
+/build/
+/.local/
+/.android-sdk/
+__pycache__/
+*.class

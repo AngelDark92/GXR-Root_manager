@@ -1,0 +1,15 @@
+# Standalone Galaxy XR root manager
+
+The user explicitly chose this new folder inside `gxr-kernel` for the standalone APK. This overrides the ancestor APK routing rule for this folder only. Preserve all existing exploit files, firmware evidence, skills, and sibling projects.
+
+Current milestone: external-bootstrap preflight, a server-authenticated verifier and a read-only broker integration. The owner requested execution of `docs/BOOTSTRAP-INTEGRATION.md` on 2026-10-08, replacing the prior device-only setup restriction. This authorizes the staged external bootstrap and deployment only after that plan's exact-target, authentication and allocation/failure-lifetime gates pass. Preserve the supplied exploit and work on copies. The existing diagnostic APK remains unchanged until reviewed broker enrollment and runtime evidence support integration; do not package an exploit into it.
+
+PC builds and synthetic tests are authorized. Carry forward the owner's explicit plan-execution authorization for necessary live preflight, one supervised temporary bootstrap and broker integration when prerequisites pass; do not repeatedly request permission for those actions. Never bypass an unresolved gate, automatically retry root, or kill retained allocation owners after a partial failure. Reboot, restart restoration and removal remain later milestones with their own plan conditions. Never flash, remount, change AVB/slots, or modify verified partitions. Firmware acquisition is a separate read-only workflow after root is available; never obtain root from the acquisition helper.
+
+Use the parent Cavecrew skill for bounded delegation. Builders own at most 2 files per task, are not alone in the codebase, use edit tools only, and do not execute tests. Parent runs verification. Investigators and reviewers remain read-only.
+
+Diagnostics must not write to tracefs, consume raw trace data, trigger the vulnerability, spray allocations, run root commands, or change SELinux. Record unavailable observations explicitly. Positive permission probes do not establish exploit feasibility.
+
+Keep app access decisions bound to Android caller UID, package and signing certificate. Reject shared UIDs, unknown callers, and changed signing identities. Verify a root server's kernel-reported credentials on the same connected socket before trusting protocol bytes. A later broker must authenticate both ends and bind boot/session/enrollment identity; existing preview approvals never grant root capability. Current APIs stay disabled until that broker is implemented and validated. Automatic root restoration remains unavailable until manual app-origin rooting and failure recovery are proven. Existing root sessions cannot be revoked merely by changing a permission record.
+
+Build output belongs under this folder. Signing keys remain local under `.local`; never print passwords or key material. Preserve reports and original inputs. Do not initialize Git or publish/upload artifacts automatically.

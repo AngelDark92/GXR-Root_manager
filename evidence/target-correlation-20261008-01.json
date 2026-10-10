@@ -1,0 +1,15 @@
+{
+  "kind": "historical_kernel_metadata_correlation",
+  "kernel_artifact": "root\\ghostlock-usb-debug\\03_TARGET-INFO\\kernel-Image",
+  "kernel_bytes": 48745844,
+  "kernel_sha256": "2bf9ede7f710ba7b873a33d427eee6d6eb390b2c7c8a1a3c7fd24a2197ff7f5a",
+  "banner_offset": "0x2110e59",
+  "banner": "Linux version %s (%s)",
+  "app_report": "root-manager\\evidence\\diagnostics-0.1.1-20261008T111240Z.json",
+  "app_report_sha256": "35ff1857732160d2ee82aecd71a64c851fe028cab8315c563d4d589da2887561",
+  "release_matches": false,
+  "version_matches": false,
+  "live_kernel_byte_identity_verified": false,
+  "full_fingerprint_binding_verified": false,
+  "device_commands_run": false
+}

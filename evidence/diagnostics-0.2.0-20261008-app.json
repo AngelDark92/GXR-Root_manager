@@ -1,0 +1,231 @@
+{
+  "timestamp_utc": "2026-10-08T21:13:32.552Z",
+  "model": "SM-I610",
+  "product": "xrvst2ue",
+  "device": "xrvst2",
+  "fingerprint": "samsung\/xrvst2ue\/xrvst2:14\/UML2.260301.001\/I610UEU2AZF3:user\/release-keys",
+  "supported_abis": [
+    "arm64-v8a"
+  ],
+  "android_sdk": 34,
+  "app_uid": 10244,
+  "observation": "App-context observations and fixed read-only root verification. Unavailable root verification does not establish global root absence. Positive opens do not establish exploit feasibility.",
+  "untested": [
+    "vulnerability",
+    "OTA\/snapshot state",
+    "allocation keeper lifetime"
+  ],
+  "native": {
+    "uid": 10244,
+    "effective_uid": 10244,
+    "uname": {
+      "release": "5.10.240-android12-9-perf-33775878-abI610UEU2AZF3",
+      "version": "#1 SMP PREEMPT Fri Jun 12 05:47:10 UTC 2026",
+      "machine": "aarch64"
+    },
+    "page_size": 4096,
+    "selinux_context": {
+      "value": "u:r:untrusted_app:s0:c244,c256,c512,c768"
+    },
+    "selinux_enforcing": {
+      "error": "bounded file read unavailable",
+      "errno": 13,
+      "message": "Permission denied"
+    },
+    "boot_id": {
+      "value": "d1d075c5-33cb-4663-ad10-d92525508a8d"
+    },
+    "read_only_properties": {
+      "ro.boot.slot_suffix": {
+        "error": "property absent or inaccessible",
+        "errno": 2,
+        "message": "No such file or directory"
+      },
+      "ro.boot.verifiedbootstate": {
+        "value": "green"
+      },
+      "ro.boot.vbmeta.device_state": {
+        "value": "locked"
+      },
+      "ro.build.version.security_patch": {
+        "value": "2026-06-01"
+      },
+      "ro.product.cpu.abilist32": {
+        "error": "property absent or inaccessible",
+        "errno": 2,
+        "message": "No such file or directory"
+      },
+      "ro.virtual_ab.enabled": {
+        "error": "property absent or inaccessible",
+        "errno": 2,
+        "message": "No such file or directory"
+      }
+    },
+    "no_new_privs": {
+      "value": 0
+    },
+    "seccomp": {
+      "value": 2
+    },
+    "rlimit_nofile": {
+      "soft": "32768",
+      "hard": "32768"
+    },
+    "rlimit_nproc": {
+      "soft": "59151",
+      "hard": "59151"
+    },
+    "allowed_cpu_ids": [
+      2,
+      3
+    ],
+    "permission_probes": [
+      {
+        "path": "\/sys\/kernel\/tracing\/tracing_on",
+        "open_allowed": false,
+        "errno": 13,
+        "access": "write",
+        "nonblocking": false,
+        "observation": "Opened and closed only; no data read, write or ioctl; positive open does not establish feasibility"
+      },
+      {
+        "path": "\/sys\/kernel\/tracing\/events\/sched\/sched_blocked_reason\/enable",
+        "open_allowed": false,
+        "errno": 13,
+        "access": "write",
+        "nonblocking": false,
+        "observation": "Opened and closed only; no data read, write or ioctl; positive open does not establish feasibility"
+      },
+      {
+        "path": "\/sys\/kernel\/tracing\/trace",
+        "open_allowed": false,
+        "errno": 13,
+        "access": "write",
+        "nonblocking": false,
+        "observation": "Opened and closed only; no data read, write or ioctl; positive open does not establish feasibility"
+      },
+      {
+        "path": "\/sys\/kernel\/tracing\/per_cpu\/cpu0\/trace_pipe_raw",
+        "open_allowed": false,
+        "errno": 13,
+        "access": "read",
+        "nonblocking": true,
+        "observation": "Opened and closed only; no data read, write or ioctl; positive open does not establish feasibility"
+      },
+      {
+        "path": "\/dev\/ashmem",
+        "open_allowed": false,
+        "errno": 13,
+        "access": "read_write",
+        "nonblocking": false,
+        "observation": "Opened and closed only; no data read, write or ioctl; positive open does not establish feasibility"
+      },
+      {
+        "path": "\/dev\/ashmemd1d075c5-33cb-4663-ad10-d92525508a8d",
+        "open_allowed": true,
+        "errno": 0,
+        "access": "read_write",
+        "nonblocking": false,
+        "observation": "Opened and closed only; no data read, write or ioctl; positive open does not establish feasibility"
+      }
+    ],
+    "boot_specific_ashmem_probe": "performed",
+    "feasibility_probes": [
+      {
+        "name": "futex_lock_pi",
+        "exit": 0
+      },
+      {
+        "name": "futex_wait_requeue_pi",
+        "exit": 110
+      },
+      {
+        "name": "futex_cmp_requeue_pi",
+        "exit": 0
+      },
+      {
+        "name": "pselect6",
+        "exit": 0
+      },
+      {
+        "name": "pipe_f_dupfd",
+        "exit": 0
+      },
+      {
+        "name": "proc_child_mem_open",
+        "exit": 2
+      },
+      {
+        "name": "posix_openpt",
+        "exit": 0
+      },
+      {
+        "name": "sched_setattr",
+        "exit": 0
+      },
+      {
+        "name": "socketpair_unix_stream",
+        "exit": 0
+      },
+      {
+        "name": "socket_unix_dgram",
+        "exit": 0
+      },
+      {
+        "name": "readlink_self_exe",
+        "exit": 0
+      },
+      {
+        "name": "exec_self_lib",
+        "signal": 6
+      },
+      {
+        "name": "ashmem_boot_path_open",
+        "exit": 2
+      }
+    ],
+    "untested": [
+      "vulnerability trigger",
+      "OTA\/snapshot state",
+      "allocation keeper lifetime"
+    ]
+  },
+  "root_verification": {
+    "state": "unverifiable",
+    "verified_root": false,
+    "reason": "The root server is not reachable. Root could not be verified.",
+    "proof": {
+      "proof_format_version": 1,
+      "legacy_protocol_version": 1,
+      "operation": "status",
+      "caller_uid": 10244,
+      "peer_credentials_available": false,
+      "root_peer_authenticated": false,
+      "client_authorized": false,
+      "peer_uid": null,
+      "peer_gid": null,
+      "peer_pid": null,
+      "status_request_sent": false,
+      "request_header_bytes": 68,
+      "protocol_status": null,
+      "stdout": "",
+      "stderr": "",
+      "error": "connect_failed"
+    }
+  },
+  "root_backend_available": false,
+  "automatic_root_enabled": false,
+  "root_commands_available": false,
+  "check_trigger": "app_open",
+  "historical_identity_problems": [
+    "Full firmware fingerprint does not match."
+  ],
+  "implementation_blockers": [
+    "Root execution is not included in this diagnostic APK.",
+    "App-accessible kernel address discovery and CPU scheduling are unverified.",
+    "Normal app UID, SELinux, seccomp and resource compatibility are unverified.",
+    "Safe lifetime of retained kernel allocations is unverified.",
+    "Complete live rollback is unproven; removing future root requires reboot."
+  ],
+  "private_report_file": "app-context-1791494013257-718540693057.json"
+}

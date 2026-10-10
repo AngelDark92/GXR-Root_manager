@@ -1,0 +1,4 @@
+# Exploit payloads and native modules are hash-pinned: never normalise their bytes.
+app/payload/* binary
+*.so binary
+*.ko binary

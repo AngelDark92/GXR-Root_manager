@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "historical_bundle_not_live_verification",
+  "model": "SM-I610",
+  "product": "xrvst2ue",
+  "device": "xrvst2",
+  "fingerprint": "samsung/xrvst2ue/xrvst2:14/UML.260301.001/I610UEU2AZF3:user/release-keys",
+  "kernel_release": "5.10.240-android12-9-perf-33775878-abI610UEU2AZF3",
+  "android_sdk": 34,
+  "page_bytes": 4096,
+  "arch": "aarch64",
+  "original_prebuilt_artifacts": [
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/build/cve-2026-43499",
+      "bytes": 98768,
+      "sha256": "7a01fb0f95673dfab44cc3391821a2f31297d8b330913a019165ec7edc5e2f1f"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/build/cve-2026-43499-root",
+      "bytes": 19304,
+      "sha256": "dae607895d27462f492825f23958b184ef6a63fb21c8fad0aa352fd767ffbf88"
+    }
+  ],
+  "missing_original_helper": "cve-2026-43499-32",
+  "helper_route_note": "Legacy exp_stack_once helper; no callers in the current source pselect route. Missing artifact is not an established active-route blocker.",
+  "known_documentation_mismatch": "Historical offset extractor/profile has 2 work colors; current target requires 15. Do not reuse draft offsets.",
+  "root_backend_available": false,
+  "app_context_exploit_verified": false,
+  "kernel_allocation_lifetime_verified": false,
+  "restoration_verified": false
+}

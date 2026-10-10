@@ -1,0 +1,108 @@
+{
+  "created_utc": "2026-10-08T12:11:02.971949+00:00",
+  "serial": "R3GYB09JA5E",
+  "boot_id": "d055f29e-a994-4b88-a07b-b5a998f8faf1",
+  "commands": [
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "getprop",
+        "ro.boot.slot_suffix"
+      ],
+      "returncode": 0,
+      "stdout": "\r\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "getprop",
+        "ro.virtual_ab.enabled"
+      ],
+      "returncode": 0,
+      "stdout": "\r\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "getprop",
+        "ro.boot.verifiedbootstate"
+      ],
+      "returncode": 0,
+      "stdout": "green\r\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "getprop",
+        "ro.boot.vbmeta.device_state"
+      ],
+      "returncode": 0,
+      "stdout": "locked\r\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "cat",
+        "/sys/kernel/notes"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "cat: /sys/kernel/notes: Permission denied\r\n"
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "ls",
+        "-l",
+        "/data/local/tmp/temp_su.sock"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "ls: /data/local/tmp/temp_su.sock: No such file or directory\r\n"
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "cat",
+        "/proc/sys/kernel/random/boot_id"
+      ],
+      "returncode": 0,
+      "stdout": "d055f29e-a994-4b88-a07b-b5a998f8faf1\r\n",
+      "stderr": ""
+    }
+  ],
+  "root_executed": false,
+  "settings_changed": false
+}

@@ -1,0 +1,482 @@
+{
+  "created_utc": "2026-10-08T12:09:51.128212+00:00",
+  "kind": "android_verifier_negative_checks",
+  "serial": "R3GYB09JA5E",
+  "commands": [
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "cat",
+        "/proc/sys/kernel/random/boot_id"
+      ],
+      "returncode": 0,
+      "stdout": "d055f29e-a994-4b88-a07b-b5a998f8faf1\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "getprop",
+        "ro.build.fingerprint"
+      ],
+      "returncode": 0,
+      "stdout": "samsung/xrvst2ue/xrvst2:14/UML2.260301.001/I610UEU2AZF3:user/release-keys\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "mkdir",
+        "-m",
+        "700",
+        "/data/local/tmp/gxr-rm-check-4e691009269a"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "push",
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\bootstrap-stage-_iyl2ymm\\gxr-bootstrap-verifier",
+        "/data/local/tmp/gxr-rm-check-4e691009269a/verifier"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\bootstrap-stage-_iyl2ymm\\gxr-bootstrap-verifier: 1 file pushed, 0 skipped. 123.1 MB/s (15704 bytes in 0.000s)\n"
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "sha256sum",
+        "/data/local/tmp/gxr-rm-check-4e691009269a/verifier"
+      ],
+      "returncode": 0,
+      "stdout": "0d3cecf25ea3f3e17439caae9ef8c1fa6bf8c6f9e6de394136946379500655bf  /data/local/tmp/gxr-rm-check-4e691009269a/verifier\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "chmod",
+        "700",
+        "/data/local/tmp/gxr-rm-check-4e691009269a/verifier"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "push",
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\peer-fixture-stage-h5sxuxoa\\gxr-negative-peer-fixture",
+        "/data/local/tmp/gxr-rm-check-4e691009269a/peer-fixture"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\peer-fixture-stage-h5sxuxoa\\gxr-negative-peer-fixture: 1 file pushed, 0 skipped. 111.3 MB/s (12456 bytes in 0.000s)\n"
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "sha256sum",
+        "/data/local/tmp/gxr-rm-check-4e691009269a/peer-fixture"
+      ],
+      "returncode": 0,
+      "stdout": "f1094e808a46e5670e9e1f080c8a9d52bddc121266441beb250f3f46f3c870b1  /data/local/tmp/gxr-rm-check-4e691009269a/peer-fixture\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "chmod",
+        "700",
+        "/data/local/tmp/gxr-rm-check-4e691009269a/peer-fixture"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "/data/local/tmp/gxr-rm-check-4e691009269a/verifier",
+        "-c",
+        "id"
+      ],
+      "returncode": 1,
+      "stdout": "{\"proof_format_version\":1,\"legacy_protocol_version\":1,\"operation\":\"probe\",\"caller_uid\":2000,\"peer_credentials_available\":false,\"root_peer_authenticated\":false,\"client_authorized\":false,\"peer_uid\":null,\"peer_gid\":null,\"peer_pid\":null,\"status_request_sent\":false,\"request_header_bytes\":68,\"protocol_status\":null,\"stdout\":\"\",\"stderr\":\"\",\"error\":\"invalid_arguments\"}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "/data/local/tmp/gxr-rm-check-4e691009269a/verifier",
+        "--daemon"
+      ],
+      "returncode": 1,
+      "stdout": "{\"proof_format_version\":1,\"legacy_protocol_version\":1,\"operation\":\"probe\",\"caller_uid\":2000,\"peer_credentials_available\":false,\"root_peer_authenticated\":false,\"client_authorized\":false,\"peer_uid\":null,\"peer_gid\":null,\"peer_pid\":null,\"status_request_sent\":false,\"request_header_bytes\":68,\"protocol_status\":null,\"stdout\":\"\",\"stderr\":\"\",\"error\":\"invalid_arguments\"}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "/data/local/tmp/gxr-rm-check-4e691009269a/verifier",
+        "--probe",
+        "--timeout-ms",
+        "0"
+      ],
+      "returncode": 1,
+      "stdout": "{\"proof_format_version\":1,\"legacy_protocol_version\":1,\"operation\":\"probe\",\"caller_uid\":2000,\"peer_credentials_available\":false,\"root_peer_authenticated\":false,\"client_authorized\":false,\"peer_uid\":null,\"peer_gid\":null,\"peer_pid\":null,\"status_request_sent\":false,\"request_header_bytes\":68,\"protocol_status\":null,\"stdout\":\"\",\"stderr\":\"\",\"error\":\"invalid_timeout\"}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "/data/local/tmp/gxr-rm-check-4e691009269a/verifier",
+        "--probe",
+        "--endpoint",
+        "relative"
+      ],
+      "returncode": 1,
+      "stdout": "{\"proof_format_version\":1,\"legacy_protocol_version\":1,\"operation\":\"probe\",\"caller_uid\":2000,\"peer_credentials_available\":false,\"root_peer_authenticated\":false,\"client_authorized\":false,\"peer_uid\":null,\"peer_gid\":null,\"peer_pid\":null,\"status_request_sent\":false,\"request_header_bytes\":68,\"protocol_status\":null,\"stdout\":\"\",\"stderr\":\"\",\"error\":\"invalid_endpoint\"}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "/data/local/tmp/gxr-rm-check-4e691009269a/verifier",
+        "--probe",
+        "--timeout-ms",
+        "1500"
+      ],
+      "returncode": 1,
+      "stdout": "{\"proof_format_version\":1,\"legacy_protocol_version\":1,\"operation\":\"probe\",\"caller_uid\":2000,\"peer_credentials_available\":false,\"root_peer_authenticated\":false,\"client_authorized\":false,\"peer_uid\":null,\"peer_gid\":null,\"peer_pid\":null,\"status_request_sent\":false,\"request_header_bytes\":68,\"protocol_status\":null,\"stdout\":\"\",\"stderr\":\"\",\"error\":\"connect_failed\"}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "/data/local/tmp/gxr-rm-check-4e691009269a/verifier",
+        "--status",
+        "--timeout-ms",
+        "1500"
+      ],
+      "returncode": 1,
+      "stdout": "{\"proof_format_version\":1,\"legacy_protocol_version\":1,\"operation\":\"status\",\"caller_uid\":2000,\"peer_credentials_available\":false,\"root_peer_authenticated\":false,\"client_authorized\":false,\"peer_uid\":null,\"peer_gid\":null,\"peer_pid\":null,\"status_request_sent\":false,\"request_header_bytes\":68,\"protocol_status\":null,\"stdout\":\"\",\"stderr\":\"\",\"error\":\"connect_failed\"}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "/data/local/tmp/gxr-rm-check-4e691009269a/verifier",
+        "--status",
+        "--endpoint",
+        "@gxr-rm-negative-b7d5393dc9ff4698",
+        "--timeout-ms",
+        "1500"
+      ],
+      "returncode": 1,
+      "stdout": "{\"proof_format_version\":1,\"legacy_protocol_version\":1,\"operation\":\"status\",\"caller_uid\":2000,\"peer_credentials_available\":true,\"root_peer_authenticated\":false,\"client_authorized\":false,\"peer_uid\":2000,\"peer_gid\":2000,\"peer_pid\":18775,\"status_request_sent\":false,\"request_header_bytes\":68,\"protocol_status\":null,\"stdout\":\"\",\"stderr\":\"\",\"error\":\"peer_not_root\"}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "/data/local/tmp/gxr-rm-check-4e691009269a/peer-fixture",
+        "--endpoint",
+        "@gxr-rm-negative-b7d5393dc9ff4698"
+      ],
+      "returncode": 0,
+      "stdout": "{\"passed\":true,\"no_client_bytes\":true,\"server_uid\":2000,\"server_effective_uid\":2000,\"peer_uid\":2000,\"error\":null,\"system_errno\":0}\n",
+      "stderr": "READY\n"
+    },
+    {
+      "argv": [
+        "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\Tools\\install\\platform-tools\\adb.exe",
+        "-s",
+        "R3GYB09JA5E",
+        "shell",
+        "-T",
+        "cat",
+        "/proc/sys/kernel/random/boot_id"
+      ],
+      "returncode": 0,
+      "stdout": "d055f29e-a994-4b88-a07b-b5a998f8faf1\n",
+      "stderr": ""
+    }
+  ],
+  "cases": [
+    {
+      "name": "reject_command",
+      "passed": true,
+      "result": {
+        "proof_format_version": 1,
+        "legacy_protocol_version": 1,
+        "operation": "probe",
+        "caller_uid": 2000,
+        "peer_credentials_available": false,
+        "root_peer_authenticated": false,
+        "client_authorized": false,
+        "peer_uid": null,
+        "peer_gid": null,
+        "peer_pid": null,
+        "status_request_sent": false,
+        "request_header_bytes": 68,
+        "protocol_status": null,
+        "stdout": "",
+        "stderr": "",
+        "error": "invalid_arguments"
+      }
+    },
+    {
+      "name": "reject_daemon",
+      "passed": true,
+      "result": {
+        "proof_format_version": 1,
+        "legacy_protocol_version": 1,
+        "operation": "probe",
+        "caller_uid": 2000,
+        "peer_credentials_available": false,
+        "root_peer_authenticated": false,
+        "client_authorized": false,
+        "peer_uid": null,
+        "peer_gid": null,
+        "peer_pid": null,
+        "status_request_sent": false,
+        "request_header_bytes": 68,
+        "protocol_status": null,
+        "stdout": "",
+        "stderr": "",
+        "error": "invalid_arguments"
+      }
+    },
+    {
+      "name": "reject_timeout",
+      "passed": true,
+      "result": {
+        "proof_format_version": 1,
+        "legacy_protocol_version": 1,
+        "operation": "probe",
+        "caller_uid": 2000,
+        "peer_credentials_available": false,
+        "root_peer_authenticated": false,
+        "client_authorized": false,
+        "peer_uid": null,
+        "peer_gid": null,
+        "peer_pid": null,
+        "status_request_sent": false,
+        "request_header_bytes": 68,
+        "protocol_status": null,
+        "stdout": "",
+        "stderr": "",
+        "error": "invalid_timeout"
+      }
+    },
+    {
+      "name": "reject_relative_endpoint",
+      "passed": true,
+      "result": {
+        "proof_format_version": 1,
+        "legacy_protocol_version": 1,
+        "operation": "probe",
+        "caller_uid": 2000,
+        "peer_credentials_available": false,
+        "root_peer_authenticated": false,
+        "client_authorized": false,
+        "peer_uid": null,
+        "peer_gid": null,
+        "peer_pid": null,
+        "status_request_sent": false,
+        "request_header_bytes": 68,
+        "protocol_status": null,
+        "stdout": "",
+        "stderr": "",
+        "error": "invalid_endpoint"
+      }
+    },
+    {
+      "name": "nonroot_peer_rejected_before_protocol",
+      "passed": true,
+      "result": {
+        "proof_format_version": 1,
+        "legacy_protocol_version": 1,
+        "operation": "status",
+        "caller_uid": 2000,
+        "peer_credentials_available": true,
+        "root_peer_authenticated": false,
+        "client_authorized": false,
+        "peer_uid": 2000,
+        "peer_gid": 2000,
+        "peer_pid": 18775,
+        "status_request_sent": false,
+        "request_header_bytes": 68,
+        "protocol_status": null,
+        "stdout": "",
+        "stderr": "",
+        "error": "peer_not_root"
+      }
+    },
+    {
+      "name": "nonroot_fixture_received_zero_bytes",
+      "passed": true,
+      "result": {
+        "passed": true,
+        "no_client_bytes": true,
+        "server_uid": 2000,
+        "server_effective_uid": 2000,
+        "peer_uid": 2000,
+        "error": null,
+        "system_errno": 0
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "local": "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\bootstrap-stage-_iyl2ymm\\gxr-bootstrap-verifier",
+      "remote": "/data/local/tmp/gxr-rm-check-4e691009269a/verifier",
+      "sha256": "0d3cecf25ea3f3e17439caae9ef8c1fa6bf8c6f9e6de394136946379500655bf",
+      "bytes": 15704,
+      "source_sha256": "8df50c9ed4b3c58206c382c710e5a38f512e7c4d4268d61a59b2dbee70a0dec6"
+    },
+    {
+      "local": "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\build\\peer-fixture-stage-h5sxuxoa\\gxr-negative-peer-fixture",
+      "remote": "/data/local/tmp/gxr-rm-check-4e691009269a/peer-fixture",
+      "sha256": "f1094e808a46e5670e9e1f080c8a9d52bddc121266441beb250f3f46f3c870b1",
+      "bytes": 12456,
+      "source_sha256": "834b7cae1c2e42a1292bc468a9daf3e731710367db6eab6ec3d87a6a99885346"
+    }
+  ],
+  "root_exploit_executed": false,
+  "apk_installed": false,
+  "partition_writes": false,
+  "boot_id_before": "d055f29e-a994-4b88-a07b-b5a998f8faf1",
+  "fingerprint": "samsung/xrvst2ue/xrvst2:14/UML2.260301.001/I610UEU2AZF3:user/release-keys",
+  "remote_directory": "/data/local/tmp/gxr-rm-check-4e691009269a",
+  "existing_daemon_checks": [
+    {
+      "mode": "--probe",
+      "returncode": 1,
+      "result": {
+        "proof_format_version": 1,
+        "legacy_protocol_version": 1,
+        "operation": "probe",
+        "caller_uid": 2000,
+        "peer_credentials_available": false,
+        "root_peer_authenticated": false,
+        "client_authorized": false,
+        "peer_uid": null,
+        "peer_gid": null,
+        "peer_pid": null,
+        "status_request_sent": false,
+        "request_header_bytes": 68,
+        "protocol_status": null,
+        "stdout": "",
+        "stderr": "",
+        "error": "connect_failed"
+      }
+    },
+    {
+      "mode": "--status",
+      "returncode": 1,
+      "result": {
+        "proof_format_version": 1,
+        "legacy_protocol_version": 1,
+        "operation": "status",
+        "caller_uid": 2000,
+        "peer_credentials_available": false,
+        "root_peer_authenticated": false,
+        "client_authorized": false,
+        "peer_uid": null,
+        "peer_gid": null,
+        "peer_pid": null,
+        "status_request_sent": false,
+        "request_header_bytes": 68,
+        "protocol_status": null,
+        "stdout": "",
+        "stderr": "",
+        "error": "connect_failed"
+      }
+    }
+  ],
+  "fixture_endpoint": "@gxr-rm-negative-b7d5393dc9ff4698",
+  "fixture_ready": "READY\n",
+  "fixture_result": {
+    "passed": true,
+    "no_client_bytes": true,
+    "server_uid": 2000,
+    "server_effective_uid": 2000,
+    "peer_uid": 2000,
+    "error": null,
+    "system_errno": 0
+  },
+  "boot_id_after": "d055f29e-a994-4b88-a07b-b5a998f8faf1",
+  "completed": true,
+  "cases_passed": 6
+}

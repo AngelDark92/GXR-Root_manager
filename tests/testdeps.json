@@ -1,0 +1,9 @@
+[
+  {
+    "file": "json-20240303.jar",
+    "url": "https://repo.maven.apache.org/maven2/org/json/json/20240303/json-20240303.jar",
+    "bytes": 78332,
+    "sha256": "3cf6cd6892e32e2b4c1c39e0f52f5248a2f5b37646fdfbb79a66b46b618414ed",
+    "purpose": "JVM-only access and root-status tests; never packaged in the APK"
+  }
+]

@@ -1,0 +1,645 @@
+{
+  "created_utc": "2026-10-08T08:38:27.929287+00:00",
+  "audit_kind": "pc_source_only",
+  "device_commands_run": false,
+  "original_exploit_files_before": [
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/build/cve-2026-43499",
+      "status": "present",
+      "bytes": 98768,
+      "sha256": "7a01fb0f95673dfab44cc3391821a2f31297d8b330913a019165ec7edc5e2f1f"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/build/cve-2026-43499-root",
+      "status": "present",
+      "bytes": 19304,
+      "sha256": "dae607895d27462f492825f23958b184ef6a63fb21c8fad0aa352fd767ffbf88"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/LICENSE",
+      "status": "present",
+      "bytes": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/Makefile",
+      "status": "present",
+      "bytes": 1647,
+      "sha256": "8a896bc45791682810c52824d6bcf50f16bc6f6215f58361d73d29d35a21e647"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/RUNBOOK.md",
+      "status": "present",
+      "bytes": 2565,
+      "sha256": "a1946d33f3364e5f30c84936103b189e3d280d4430392794ae9cd29b259d24ce"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/common.h",
+      "status": "present",
+      "bytes": 13081,
+      "sha256": "787b4c40b2f9d6c0261381228e3179baabb9ee46d5611e51ef4cfa01a8cb0f29"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/exp32/main.c",
+      "status": "present",
+      "bytes": 6027,
+      "sha256": "2c48aac32e114abe7ccda1b08d3c303cf7ccfa2c18d0bbf98df94dd3ea4fc673"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/exp32/stack.c",
+      "status": "present",
+      "bytes": 1263,
+      "sha256": "9d5d34b3630a1e885050350ed5674f34abf71c59f13288e84715e61ac884026f"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/fops.c",
+      "status": "present",
+      "bytes": 16176,
+      "sha256": "fd07b19f75eac9cb8301d0c81060226c5efc7df9bd3debd5a1aa58bcb2e2083b"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/kernelsnitch/futex_hash.h",
+      "status": "present",
+      "bytes": 5852,
+      "sha256": "f105b1c1d3c7dc009c25a84d9bf9790ef5085e0005c62ced4a98096b783d6de0"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/kernelsnitch/kernelsnitch.h",
+      "status": "present",
+      "bytes": 14573,
+      "sha256": "1a6ee59d1b5794276c5a79aa089ca3c8fb3f44b3cd3e5c3d27c494491179e91a"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/kernelsnitch/timeutils.h",
+      "status": "present",
+      "bytes": 576,
+      "sha256": "50327a659b387fbce02187bd715eeab252a26fdad68f78ab3301d3d15daca781"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/kernelsnitch/utils.h",
+      "status": "present",
+      "bytes": 7388,
+      "sha256": "f238f8e12eb36f1215069a55514b7e5610fbba64036c5149a8ef23dadce0ebae"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/main.c",
+      "status": "present",
+      "bytes": 8293,
+      "sha256": "a0cc0627209ec7ff6a28ee688ffebfa3e91bdcd7b7e5949e3b99764cf8d96b78"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/offset.h",
+      "status": "present",
+      "bytes": 48,
+      "sha256": "bd365ade51424df417d78d7c233463cb6fcc6f0a67f137eb79b6c68dd5798f3d"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/pipe.c",
+      "status": "present",
+      "bytes": 22440,
+      "sha256": "e9f48417f7baae605137524517d497a3b2bf40859715c4cd212ff529c5148893"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/preload.c",
+      "status": "present",
+      "bytes": 3653,
+      "sha256": "ebea5ed881739d4c88d4144d0065ceecdf4bf24e7f840bd589c3b524e02c17f8"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/root.c",
+      "status": "present",
+      "bytes": 16737,
+      "sha256": "cf53f111b43405c5fc24e43256e730ad9345ae59bbf9310d7f9663d62621c0b3"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/slide.c",
+      "status": "present",
+      "bytes": 4745,
+      "sha256": "95536536b983bfe37e3f70be49ebf9c0f3f330cfcd1030c0d6cf8fa513b9bfea"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/su_daemon.c",
+      "status": "present",
+      "bytes": 17947,
+      "sha256": "eeb6a4ccb79e85e69002847999bc01407a423fe75ac2ea279d1104bf8329892e"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/targets/xrvst2-I610UEU2AZF3/target.h",
+      "status": "present",
+      "bytes": 11170,
+      "sha256": "866efcf38ba11a327cdcdc2d73b706f1887f0cf65757a3784ad6fe5164e2e516"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/util.c",
+      "status": "present",
+      "bytes": 23627,
+      "sha256": "a1434c99bb60cc4acf40fa054ca068f884ad8b8889120b2865b26e166a3d5bfd"
+    }
+  ],
+  "supplied_binary_inventory": [
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/build/cve-2026-43499",
+      "status": "present",
+      "bytes": 98768,
+      "sha256": "7a01fb0f95673dfab44cc3391821a2f31297d8b330913a019165ec7edc5e2f1f",
+      "elf": {
+        "artifact_offset": 0,
+        "machine_field_offset": 18,
+        "class": 64,
+        "endianness": "little",
+        "type": 3,
+        "machine": 183,
+        "machine_name": "AArch64",
+        "header_only": true
+      }
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/build/cve-2026-43499-root",
+      "status": "present",
+      "bytes": 19304,
+      "sha256": "dae607895d27462f492825f23958b184ef6a63fb21c8fad0aa352fd767ffbf88",
+      "elf": {
+        "artifact_offset": 0,
+        "machine_field_offset": 18,
+        "class": 64,
+        "endianness": "little",
+        "type": 3,
+        "machine": 183,
+        "machine_name": "AArch64",
+        "header_only": true
+      }
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/build/cve-2026-43499-32",
+      "status": "missing"
+    }
+  ],
+  "related_offset_extractor_files": [
+    {
+      "path": "root/ghostlock-usb-debug/03_TARGET-INFO/ghostlock-offsets/bounds.c",
+      "status": "present",
+      "bytes": 434,
+      "sha256": "f3f15e21851a155a3d608c8b067d7621863aebf4289df85f9649d56e8c7ecbec"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/03_TARGET-INFO/ghostlock-offsets/bounds.s",
+      "status": "present",
+      "bytes": 684,
+      "sha256": "a6a70f25609790ed6cc653e9052a0a89a614feee23695f7903ad906b273288c3"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/03_TARGET-INFO/ghostlock-offsets/GXR_TARGET_PROFILE.md",
+      "status": "present",
+      "bytes": 10166,
+      "sha256": "a2c0a625eaf19484748482f23b0ed9f70a94e9bf840d36de436ea78f852db8f2"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/03_TARGET-INFO/ghostlock-offsets/offsets.c",
+      "status": "present",
+      "bytes": 8113,
+      "sha256": "f037a75283a43698a4ac3df0ff5637b586daa2ab022a75c02d70ddaac8eaa9e1"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/03_TARGET-INFO/ghostlock-offsets/offsets.s",
+      "status": "present",
+      "bytes": 6980,
+      "sha256": "c4fdef4bc095a84d2c1d1c7bd31025908d7b466c66f8e1b6a6d5efca0377dc3f"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/03_TARGET-INFO/ghostlock-offsets/xrvst2_target_draft.h",
+      "status": "present",
+      "bytes": 7189,
+      "sha256": "50e664982f361ac6ed569fea7612f547b20bc94439ae5e1c828236aa1d64ea30"
+    }
+  ],
+  "documentation": [
+    {
+      "path": "root/ghostlock-usb-debug/README.md",
+      "status": "present",
+      "bytes": 2754,
+      "sha256": "325ef772c61cf9ae9ba37a58c5570660423a112df764cedf997cbcc3656548f2"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/REPORT.md",
+      "status": "present",
+      "bytes": 9469,
+      "sha256": "656625ece926010da36efdc1f6adffacff0bbd461227df402a1551f0f355890f"
+    },
+    {
+      "path": "docs/VALIDATION.md",
+      "status": "present",
+      "bytes": 5199,
+      "sha256": "6ffa9b113841a171ad10c57831a7e73c89514a5d164aa6937c44eff19d48c5ea"
+    }
+  ],
+  "target_observations": {
+    "source_header_fingerprint": "samsung/xrvst2ue/xrvst2:14/UML.260301.001/I610UEU2AZF3:user/release-keys",
+    "live_device_fingerprint_verified": false,
+    "target_header_evidence": {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/targets/xrvst2-I610UEU2AZF3/target.h",
+      "status": "present",
+      "bytes": 11170,
+      "sha256": "866efcf38ba11a327cdcdc2d73b706f1887f0cf65757a3784ad6fe5164e2e516",
+      "matches": [
+        {
+          "line": 11,
+          "text": "#define BUILD_FINGERPRINT \"samsung/xrvst2ue/xrvst2:14/UML.260301.001/I610UEU2AZF3:user/release-keys\""
+        },
+        {
+          "line": 199,
+          "text": "#define PWQ_NR_ACTIVE_OFF 0x58           /* 0x1c + 15*4 */"
+        },
+        {
+          "line": 200,
+          "text": "#define PWQ_MAX_ACTIVE_OFF 0x5c"
+        }
+      ]
+    },
+    "documented_profile_evidence": {
+      "path": "root/ghostlock-usb-debug/03_TARGET-INFO/ghostlock-offsets/GXR_TARGET_PROFILE.md",
+      "status": "present",
+      "bytes": 10166,
+      "sha256": "a2c0a625eaf19484748482f23b0ed9f70a94e9bf840d36de436ea78f852db8f2",
+      "matches": [
+        {
+          "line": 81,
+          "text": "PWQ_NR_ACTIVE          0x24"
+        },
+        {
+          "line": 82,
+          "text": "PWQ_MAX_ACTIVE         0x28"
+        }
+      ]
+    },
+    "stale_documented_offsets": [
+      {
+        "name": "PWQ_NR_ACTIVE",
+        "documented": "0x24",
+        "current_header": "0x58"
+      },
+      {
+        "name": "PWQ_MAX_ACTIVE",
+        "documented": "0x28",
+        "current_header": "0x5c"
+      }
+    ],
+    "new_offsets_derived": false
+  },
+  "historical_evidence": {
+    "classification": "historical_report_claims_not_live_runtime_proof",
+    "report": {
+      "path": "root/ghostlock-usb-debug/REPORT.md",
+      "status": "present",
+      "bytes": 9469,
+      "sha256": "656625ece926010da36efdc1f6adffacff0bbd461227df402a1551f0f355890f",
+      "matches": [
+        {
+          "line": 8,
+          "text": "A Samsung Galaxy XR (`SM-I610`, `xrvst2ue`, build `I610UEU2AZF3`, kernel 5.10.240) was rooted from an"
+        },
+        {
+          "line": 9,
+          "text": "unprivileged `adb shell` (`uid=2000(shell)`, SELinux Enforcing, locked bootloader) by porting the"
+        },
+        {
+          "line": 10,
+          "text": "GhostLock (CVE-2026-43499) kernel LPE. The result is a stable `uid=0(root)` context"
+        },
+        {
+          "line": 11,
+          "text": "(`u:r:kernel:s0`, SELinux permissive), reproducible across a full reboot, with no flashing and no"
+        },
+        {
+          "line": 119,
+          "text": "root umh result wake=1 complete=1 retval=0 socket=1"
+        },
+        {
+          "line": 131,
+          "text": "uid=0(root) gid=0(root) groups=0(root) context=u:r:kernel:s0"
+        },
+        {
+          "line": 134,
+          "text": "Permissive"
+        },
+        {
+          "line": 142,
+          "text": "Tested several times from cold boots (SELinux Enforcing each time): push, run, verify \u2192"
+        },
+        {
+          "line": 143,
+          "text": "`uid=0(root)` every time, no reboot. A reboot clears root (SELinux back to Enforcing); re-run the"
+        },
+        {
+          "line": 166,
+          "text": "flashing, no on-disk changes); a reboot fully clears it. Do not use on any device you do not own."
+        }
+      ]
+    },
+    "root_survives_reboot_demonstrated": false,
+    "app_context_exploit_feasibility_demonstrated": false,
+    "allocation_lifetime_safety_demonstrated": false
+  },
+  "runtime_log_observation": {
+    "scanned_directory": "root/ghostlock-usb-debug",
+    "selection": "*.log and logcat/dmesg/runtime/exp32-prefixed *.txt files",
+    "matching_files": [],
+    "raw_runtime_log_match_found": false,
+    "content_validated_as_runtime_log": false,
+    "absence_claim_scope": "only the named directory and selection; embedded REPORT snippets excluded"
+  },
+  "reference_compilation": {
+    "requested": true,
+    "binaries_executed": false,
+    "ndk_revision": "27.2.12479018",
+    "clang_sha256": "dcddc0336730b1053998e305cc41b93614c62209acb96b4875d44fc3a2b2d522",
+    "stage": "root-manager/evidence/reference-build-0j32oxk6",
+    "results": [
+      {
+        "artifact_name": "cve-2026-43499",
+        "command": [
+          "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\steamlink-patches\\.android-sdk\\ndk\\27.2.12479018\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe",
+          "--target=aarch64-linux-android34",
+          "--sysroot=D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\steamlink-patches\\.android-sdk\\ndk\\27.2.12479018\\toolchains\\llvm\\prebuilt\\windows-x86_64\\sysroot",
+          "-fPIC",
+          "-shared",
+          "-pthread",
+          "-O2",
+          "-g0",
+          "-Wall",
+          "-Wextra",
+          "-Wno-unused-parameter",
+          "-Wno-sign-compare",
+          "-Wno-unused-function",
+          "-ID:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root\\ghostlock-usb-debug\\01_EXPLOIT\\src",
+          "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root\\ghostlock-usb-debug\\01_EXPLOIT\\src\\main.c",
+          "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root\\ghostlock-usb-debug\\01_EXPLOIT\\src\\util.c",
+          "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root\\ghostlock-usb-debug\\01_EXPLOIT\\src\\slide.c",
+          "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root\\ghostlock-usb-debug\\01_EXPLOIT\\src\\fops.c",
+          "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root\\ghostlock-usb-debug\\01_EXPLOIT\\src\\pipe.c",
+          "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root\\ghostlock-usb-debug\\01_EXPLOIT\\src\\root.c",
+          "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root\\ghostlock-usb-debug\\01_EXPLOIT\\src\\preload.c",
+          "-o",
+          "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\evidence\\reference-build-0j32oxk6\\cve-2026-43499"
+        ],
+        "status": "compiled",
+        "exit_code": 0,
+        "output_tail": "",
+        "artifact": {
+          "path": "root-manager/evidence/reference-build-0j32oxk6/cve-2026-43499",
+          "status": "present",
+          "bytes": 98792,
+          "sha256": "fc05f578ff7783daddeda78bdd9ac11816b619255e0322293987102b50e3f307",
+          "elf": {
+            "artifact_offset": 0,
+            "machine_field_offset": 18,
+            "class": 64,
+            "endianness": "little",
+            "type": 3,
+            "machine": 183,
+            "machine_name": "AArch64",
+            "header_only": true
+          }
+        }
+      },
+      {
+        "artifact_name": "cve-2026-43499-root",
+        "command": [
+          "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\steamlink-patches\\.android-sdk\\ndk\\27.2.12479018\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe",
+          "--target=aarch64-linux-android34",
+          "--sysroot=D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\steamlink-patches\\.android-sdk\\ndk\\27.2.12479018\\toolchains\\llvm\\prebuilt\\windows-x86_64\\sysroot",
+          "-fPIE",
+          "-pie",
+          "-O2",
+          "-g0",
+          "-Wall",
+          "-Wextra",
+          "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root\\ghostlock-usb-debug\\01_EXPLOIT\\src\\su_daemon.c",
+          "-o",
+          "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\evidence\\reference-build-0j32oxk6\\cve-2026-43499-root"
+        ],
+        "status": "compiled",
+        "exit_code": 0,
+        "output_tail": "",
+        "artifact": {
+          "path": "root-manager/evidence/reference-build-0j32oxk6/cve-2026-43499-root",
+          "status": "present",
+          "bytes": 18832,
+          "sha256": "85ff78d40b87b375670865ad248d4b1d665044b2ffa8cb9e37269c48b7189f28",
+          "elf": {
+            "artifact_offset": 0,
+            "machine_field_offset": 18,
+            "class": 64,
+            "endianness": "little",
+            "type": 3,
+            "machine": 183,
+            "machine_name": "AArch64",
+            "header_only": true
+          }
+        }
+      },
+      {
+        "artifact_name": "cve-2026-43499-32",
+        "command": [
+          "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\steamlink-patches\\.android-sdk\\ndk\\27.2.12479018\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe",
+          "--target=armv7a-linux-androideabi28",
+          "--sysroot=D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\steamlink-patches\\.android-sdk\\ndk\\27.2.12479018\\toolchains\\llvm\\prebuilt\\windows-x86_64\\sysroot",
+          "-fPIE",
+          "-pie",
+          "-static",
+          "-pthread",
+          "-O2",
+          "-g0",
+          "-Wall",
+          "-Wextra",
+          "-Wno-unused-parameter",
+          "-Wno-sign-compare",
+          "-Wno-unused-function",
+          "-ID:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root\\ghostlock-usb-debug\\01_EXPLOIT\\src",
+          "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root\\ghostlock-usb-debug\\01_EXPLOIT\\src\\exp32\\main.c",
+          "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root\\ghostlock-usb-debug\\01_EXPLOIT\\src\\exp32\\stack.c",
+          "-o",
+          "D:\\Angelo\\Desktop\\SteamLink-GalaxyXR-Windows-Toolkit-FULL\\gxr-kernel\\root-manager\\evidence\\reference-build-0j32oxk6\\cve-2026-43499-32"
+        ],
+        "status": "compiled",
+        "exit_code": 0,
+        "output_tail": "clang: warning: argument unused during compilation: '-pie' [-Wunused-command-line-argument]\n",
+        "artifact": {
+          "path": "root-manager/evidence/reference-build-0j32oxk6/cve-2026-43499-32",
+          "status": "present",
+          "bytes": 1732664,
+          "sha256": "f3be32dbee62b1eade435cb9878e2bd66585757d369181b7c27a82e85e81e9f9",
+          "elf": {
+            "artifact_offset": 0,
+            "machine_field_offset": 18,
+            "class": 32,
+            "endianness": "little",
+            "type": 2,
+            "machine": 40,
+            "machine_name": "ARM",
+            "header_only": true
+          }
+        }
+      }
+    ],
+    "success": true,
+    "same_byte_reproduction_claimed": false,
+    "runtime_safety_claimed": false
+  },
+  "original_exploit_files_after": [
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/build/cve-2026-43499",
+      "status": "present",
+      "bytes": 98768,
+      "sha256": "7a01fb0f95673dfab44cc3391821a2f31297d8b330913a019165ec7edc5e2f1f"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/build/cve-2026-43499-root",
+      "status": "present",
+      "bytes": 19304,
+      "sha256": "dae607895d27462f492825f23958b184ef6a63fb21c8fad0aa352fd767ffbf88"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/LICENSE",
+      "status": "present",
+      "bytes": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/Makefile",
+      "status": "present",
+      "bytes": 1647,
+      "sha256": "8a896bc45791682810c52824d6bcf50f16bc6f6215f58361d73d29d35a21e647"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/RUNBOOK.md",
+      "status": "present",
+      "bytes": 2565,
+      "sha256": "a1946d33f3364e5f30c84936103b189e3d280d4430392794ae9cd29b259d24ce"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/common.h",
+      "status": "present",
+      "bytes": 13081,
+      "sha256": "787b4c40b2f9d6c0261381228e3179baabb9ee46d5611e51ef4cfa01a8cb0f29"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/exp32/main.c",
+      "status": "present",
+      "bytes": 6027,
+      "sha256": "2c48aac32e114abe7ccda1b08d3c303cf7ccfa2c18d0bbf98df94dd3ea4fc673"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/exp32/stack.c",
+      "status": "present",
+      "bytes": 1263,
+      "sha256": "9d5d34b3630a1e885050350ed5674f34abf71c59f13288e84715e61ac884026f"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/fops.c",
+      "status": "present",
+      "bytes": 16176,
+      "sha256": "fd07b19f75eac9cb8301d0c81060226c5efc7df9bd3debd5a1aa58bcb2e2083b"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/kernelsnitch/futex_hash.h",
+      "status": "present",
+      "bytes": 5852,
+      "sha256": "f105b1c1d3c7dc009c25a84d9bf9790ef5085e0005c62ced4a98096b783d6de0"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/kernelsnitch/kernelsnitch.h",
+      "status": "present",
+      "bytes": 14573,
+      "sha256": "1a6ee59d1b5794276c5a79aa089ca3c8fb3f44b3cd3e5c3d27c494491179e91a"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/kernelsnitch/timeutils.h",
+      "status": "present",
+      "bytes": 576,
+      "sha256": "50327a659b387fbce02187bd715eeab252a26fdad68f78ab3301d3d15daca781"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/kernelsnitch/utils.h",
+      "status": "present",
+      "bytes": 7388,
+      "sha256": "f238f8e12eb36f1215069a55514b7e5610fbba64036c5149a8ef23dadce0ebae"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/main.c",
+      "status": "present",
+      "bytes": 8293,
+      "sha256": "a0cc0627209ec7ff6a28ee688ffebfa3e91bdcd7b7e5949e3b99764cf8d96b78"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/offset.h",
+      "status": "present",
+      "bytes": 48,
+      "sha256": "bd365ade51424df417d78d7c233463cb6fcc6f0a67f137eb79b6c68dd5798f3d"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/pipe.c",
+      "status": "present",
+      "bytes": 22440,
+      "sha256": "e9f48417f7baae605137524517d497a3b2bf40859715c4cd212ff529c5148893"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/preload.c",
+      "status": "present",
+      "bytes": 3653,
+      "sha256": "ebea5ed881739d4c88d4144d0065ceecdf4bf24e7f840bd589c3b524e02c17f8"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/root.c",
+      "status": "present",
+      "bytes": 16737,
+      "sha256": "cf53f111b43405c5fc24e43256e730ad9345ae59bbf9310d7f9663d62621c0b3"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/slide.c",
+      "status": "present",
+      "bytes": 4745,
+      "sha256": "95536536b983bfe37e3f70be49ebf9c0f3f330cfcd1030c0d6cf8fa513b9bfea"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/su_daemon.c",
+      "status": "present",
+      "bytes": 17947,
+      "sha256": "eeb6a4ccb79e85e69002847999bc01407a423fe75ac2ea279d1104bf8329892e"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/targets/xrvst2-I610UEU2AZF3/target.h",
+      "status": "present",
+      "bytes": 11170,
+      "sha256": "866efcf38ba11a327cdcdc2d73b706f1887f0cf65757a3784ad6fe5164e2e516"
+    },
+    {
+      "path": "root/ghostlock-usb-debug/01_EXPLOIT/src/util.c",
+      "status": "present",
+      "bytes": 23627,
+      "sha256": "a1434c99bb60cc4acf40fa054ca068f884ad8b8889120b2865b26e166a3d5bfd"
+    }
+  ],
+  "original_tree_integrity": {
+    "unchanged": true,
+    "changed_paths": []
+  },
+  "reference_compile_source_inputs_sha256": {
+    "root/ghostlock-usb-debug/01_EXPLOIT/src/common.h": "787b4c40b2f9d6c0261381228e3179baabb9ee46d5611e51ef4cfa01a8cb0f29",
+    "root/ghostlock-usb-debug/01_EXPLOIT/src/exp32/main.c": "2c48aac32e114abe7ccda1b08d3c303cf7ccfa2c18d0bbf98df94dd3ea4fc673",
+    "root/ghostlock-usb-debug/01_EXPLOIT/src/exp32/stack.c": "9d5d34b3630a1e885050350ed5674f34abf71c59f13288e84715e61ac884026f",
+    "root/ghostlock-usb-debug/01_EXPLOIT/src/fops.c": "fd07b19f75eac9cb8301d0c81060226c5efc7df9bd3debd5a1aa58bcb2e2083b",
+    "root/ghostlock-usb-debug/01_EXPLOIT/src/kernelsnitch/futex_hash.h": "f105b1c1d3c7dc009c25a84d9bf9790ef5085e0005c62ced4a98096b783d6de0",
+    "root/ghostlock-usb-debug/01_EXPLOIT/src/kernelsnitch/kernelsnitch.h": "1a6ee59d1b5794276c5a79aa089ca3c8fb3f44b3cd3e5c3d27c494491179e91a",
+    "root/ghostlock-usb-debug/01_EXPLOIT/src/kernelsnitch/timeutils.h": "50327a659b387fbce02187bd715eeab252a26fdad68f78ab3301d3d15daca781",
+    "root/ghostlock-usb-debug/01_EXPLOIT/src/kernelsnitch/utils.h": "f238f8e12eb36f1215069a55514b7e5610fbba64036c5149a8ef23dadce0ebae",
+    "root/ghostlock-usb-debug/01_EXPLOIT/src/main.c": "a0cc0627209ec7ff6a28ee688ffebfa3e91bdcd7b7e5949e3b99764cf8d96b78",
+    "root/ghostlock-usb-debug/01_EXPLOIT/src/offset.h": "bd365ade51424df417d78d7c233463cb6fcc6f0a67f137eb79b6c68dd5798f3d",
+    "root/ghostlock-usb-debug/01_EXPLOIT/src/pipe.c": "e9f48417f7baae605137524517d497a3b2bf40859715c4cd212ff529c5148893",
+    "root/ghostlock-usb-debug/01_EXPLOIT/src/preload.c": "ebea5ed881739d4c88d4144d0065ceecdf4bf24e7f840bd589c3b524e02c17f8",
+    "root/ghostlock-usb-debug/01_EXPLOIT/src/root.c": "cf53f111b43405c5fc24e43256e730ad9345ae59bbf9310d7f9663d62621c0b3",
+    "root/ghostlock-usb-debug/01_EXPLOIT/src/slide.c": "95536536b983bfe37e3f70be49ebf9c0f3f330cfcd1030c0d6cf8fa513b9bfea",
+    "root/ghostlock-usb-debug/01_EXPLOIT/src/su_daemon.c": "eeb6a4ccb79e85e69002847999bc01407a423fe75ac2ea279d1104bf8329892e",
+    "root/ghostlock-usb-debug/01_EXPLOIT/src/targets/xrvst2-I610UEU2AZF3/target.h": "866efcf38ba11a327cdcdc2d73b706f1887f0cf65757a3784ad6fe5164e2e516",
+    "root/ghostlock-usb-debug/01_EXPLOIT/src/util.c": "a1434c99bb60cc4acf40fa054ca068f884ad8b8889120b2865b26e166a3d5bfd"
+  }
+}
