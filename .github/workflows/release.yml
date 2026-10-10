@@ -89,6 +89,9 @@ jobs:
         run: python tools/release_policy.py --persist
 
       - name: Restore the development keystore
+        # The secret value must be the base64 TEXT of .local/debug.keystore. A secret
+        # whose value is not decodable text makes GitHub fail every run of any workflow
+        # that references it at startup -- no jobs, no logs, just `startup_failure`.
         shell: bash
         env:
           KEYSTORE_B64: ${{ secrets.GXR_DEBUG_KEYSTORE_BASE64 }}
