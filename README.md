@@ -14,6 +14,18 @@ The app drives an embedded arm64 adb client against the headset's own wireless d
 - Nothing is flashed, no partition is written, the bootloader stays locked.
 - No warranty. The owner accepts the risk.
 
+## KernelSU-Next is required
+
+Root stays locked until the KernelSU-Next manager app is installed and detected
+(`com.rifsxd.ksunext`). Root is kernel-memory only, so the manager is what hands `su` back after
+every restart; without it the app can obtain root but nothing can use it.
+
+- Latest release: https://github.com/AngelDark92/KernelSU-Next-GXR/releases/latest
+- Direct APK: https://github.com/AngelDark92/KernelSU-Next-GXR/releases/latest/download/KernelSU_Next_v3.4.0-android12-5.10_33303-release.apk
+
+Install the APK, then press **Root now** here. The app re-checks on every start and unlocks as
+soon as the manager is detected.
+
 ## Flow
 
 0. **Pair once.** On the headset open Developer options > Wireless debugging > *Pair device with pairing code*, then in the app's **Pairing** card press **Find port** (the app discovers the pairing port over mDNS `_adb-tls-pairing._tcp`), type the 6-digit code and press **Pair now**. Pairing is required on this build, and the pairing port is *not* the connect port. The code is stored, and `Root now` refuses to run without it.

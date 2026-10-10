@@ -40,6 +40,16 @@ public final class MainActivity extends Activity {
     private static final int ACCENT = Color.rgb(109, 228, 193);
     private static final int WARN = Color.rgb(240, 173, 78);
     private static final int LOG_LIMIT = 200;
+    /**
+     * KernelSU-Next manager. Root here is kernel-memory only, so its manager is what keeps `su`
+     * usable after every restart; this app refuses to root until the manager app is installed.
+     * Keep this package in the AndroidManifest.xml <queries> block, or the check below fails
+     * on API 30+ even when the manager is installed.
+     */
+    private static final String KSU_MANAGER_PACKAGE = "com.rifsxd.ksunext";
+    private static final String KSU_MANAGER_APK_URL =
+            "https://github.com/AngelDark92/KernelSU-Next-GXR/releases/latest/download/"
+                    + "KernelSU_Next_v3.4.0-android12-5.10_33303-release.apk";
 
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private RootEngine engine;
@@ -53,6 +63,7 @@ public final class MainActivity extends Activity {
     private Button verifyButton;
     private boolean busy;
     private boolean autoBootAccepted;
+    private boolean autoBootRevert;
     private static boolean autoChecked;
     private final List<Button> gatedButtons = new java.util.ArrayList<>();
 
@@ -68,6 +79,10 @@ public final class MainActivity extends Activity {
             requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 1);
         }
         showPage();
+        if (!ksuManagerInstalled()) {
+            appendLog("[!] root locked: KernelSU-Next is not installed");
+            showKernelSuRequired();
+        }
     }
 
     @Override
@@ -91,6 +106,11 @@ public final class MainActivity extends Activity {
 
     private void startRoot() {
         if (busy) return;
+        if (!ksuManagerInstalled()) {
+            appendLog("[!] root locked: KernelSU-Next is not installed");
+            showKernelSuRequired();
+            return;
+        }
         if (engine.pairCode().isEmpty()) {
             appendLog("[!] pairing code missing");
             danger("Pairing code required",
@@ -235,6 +255,36 @@ public final class MainActivity extends Activity {
         }
     }
 
+    private boolean ksuManagerInstalled() {
+        try {
+            getPackageManager().getPackageInfo(KSU_MANAGER_PACKAGE, 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException missing) {
+            return false;
+        }
+    }
+
+    private void showKernelSuRequired() {
+        danger("KernelSU-Next is required",
+                "Root on this headset only works with the KernelSU-Next manager installed. Root "
+                        + "stays in kernel memory, and only the manager hands it back after a "
+                        + "restart; this app ships the module, but nothing can use root without "
+                        + "the manager.\n\n"
+                        + "Install the manager APK first:\n"
+                        + KSU_MANAGER_APK_URL + "\n\n"
+                        + "Root now and Re-root after every restart stay locked until it is "
+                        + "installed and detected.",
+                "Download the APK", this::openKsuManagerDownload);
+    }
+
+    private void openKsuManagerDownload() {
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(KSU_MANAGER_APK_URL)));
+        } catch (Throwable failure) {
+            appendLog("[!] no app can open " + KSU_MANAGER_APK_URL);
+        }
+    }
+
     private void openKernelSuPage() {
         try {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(RootEngine.KSU_MODULE_URL)));
@@ -285,7 +335,7 @@ public final class MainActivity extends Activity {
         verifyButton = button(actions, "Verify root", true, ignored -> verify());
         root.addView(actions, new LinearLayout.LayoutParams(-1, -2));
         ksuView = text(root, "", 14, MUTED, false);
-        gatedButtons.add(button(root, "Get the KernelSU module", false, ignored -> openKernelSuPage()));
+        gatedButtons.add(button(root, "Get KernelSU-Next (app + module)", false, ignored -> openKernelSuPage()));
 
         CheckBox autoBoot = new CheckBox(this);
         autoBoot.setText("Re-root after every restart");
@@ -293,15 +343,25 @@ public final class MainActivity extends Activity {
         autoBoot.setTextSize(15);
         autoBoot.setChecked(RootService.autoBoot(this));
         autoBoot.setOnCheckedChangeListener((view, checked) -> {
+            if (autoBootRevert) {
+                autoBootRevert = false;
+                return;
+            }
             if (!checked) {
                 autoBootAccepted = false;
                 RootService.setAutoBoot(this, false);
                 appendLog("[*] boot re-root disabled");
+            } else if (!ksuManagerInstalled()) {
+                autoBootRevert = true;
+                view.setChecked(false);
+                appendLog("[!] boot re-root locked: KernelSU-Next is not installed");
+                showKernelSuRequired();
             } else if (autoBootAccepted) {
                 autoBootAccepted = false;
                 RootService.setAutoBoot(this, true);
                 appendLog("[*] boot re-root enabled");
             } else {
+                autoBootRevert = true;
                 view.setChecked(false);
                 danger("Re-root after every restart?",
                         "Every restart would run the exploit again by itself, with no one watching the "
@@ -388,6 +448,11 @@ public final class MainActivity extends Activity {
     }
 
     private void confirmRoot() {
+        if (!ksuManagerInstalled()) {
+            appendLog("[!] root locked: KernelSU-Next is not installed");
+            showKernelSuRequired();
+            return;
+        }
         danger("Root this headset?",
                 "Rooting runs a kernel exploit on your own Galaxy XR. Before you continue:\n\n"
                         + "- One attempt per boot; a failed attempt stays latched until you rearm or "
