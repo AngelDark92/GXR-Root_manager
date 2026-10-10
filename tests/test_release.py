@@ -200,6 +200,15 @@ class VersionSourceTests(unittest.TestCase):
         self.assertRegex(POLICY.read_version(ROOT), r"^\d+\.\d+\.\d+$")
 
 
+class PlannedCommitTests(unittest.TestCase):
+    def test_planned_commit_uses_the_policy_version_without_replanning(self):
+        decision = POLICY.planned_commit_decision("0.3.7")
+        self.assertTrue(decision["bump"])
+        self.assertTrue(decision["publish"])
+        self.assertEqual(decision["version"], "0.3.7")
+        self.assertEqual(decision["tag"], "v0.3.7")
+
+
 class TestDependencyTests(unittest.TestCase):
     def test_pinned_dependency_manifest_is_well_formed(self):
         import json

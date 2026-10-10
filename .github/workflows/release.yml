@@ -128,7 +128,7 @@ jobs:
       - name: Commit the version bump
         if: steps.policy.outputs.publish == 'true' && steps.policy.outputs.bump == 'true'
         shell: bash
-        run: python tools/release_policy.py --commit
+        run: python tools/release_policy.py --commit --version "${{ steps.policy.outputs.version }}"
 
       - name: Publish the release
         if: steps.policy.outputs.publish == 'true'

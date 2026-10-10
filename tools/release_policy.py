@@ -22,7 +22,8 @@ Modes:
 
 * default (plan) -- print the decision and write it to `$GITHUB_OUTPUT`;
 * `--persist`     -- write the planned version into the sources and the changelog;
-* `--commit`      -- deterministic bot commit for the persisted bump, push to `main`.
+* `--commit`      -- deterministic bot commit for the persisted bump, push to `main`;
+  pass `--version x.y.z` to commit exactly what the policy step planned.
 """
 
 import argparse
@@ -284,10 +285,19 @@ def commit(decision):
     return 0
 
 
+def planned_commit_decision(version):
+    """Commit exactly what the policy step planned. Re-planning here would see the
+    already-persisted tree as ahead of the previous tag and skip the commit."""
+    return {"current": read_version(), "version": version, "publish": True, "bump": True,
+            "tag": f"v{version}", "delta": None,
+            "reason": "commit the version planned by the policy step"}
+
+
 def main():
     parser = argparse.ArgumentParser(description="Compute and apply the root-manager release policy")
     parser.add_argument("--persist", action="store_true", help="write the planned version into the sources")
     parser.add_argument("--commit", action="store_true", help="commit and push the persisted bump")
+    parser.add_argument("--version", help="the version the policy step planned (use with --commit)")
     parser.add_argument("--ref", help="override GITHUB_REF")
     parser.add_argument("--event", help="override GITHUB_EVENT_NAME")
     parser.add_argument("--dispatch-publish", action="store_true", help="pretend a dispatch asked to publish")
@@ -296,6 +306,8 @@ def main():
         (arguments.event or os.environ.get("GITHUB_EVENT_NAME", "")) == "workflow_dispatch"
         and os.environ.get("INPUT_PUBLISH", "").lower() == "true")
     try:
+        if arguments.commit and arguments.version:
+            return commit(planned_commit_decision(arguments.version))
         decision = plan(arguments.ref, arguments.event, dispatch)
         if arguments.persist:
             return persist(decision)
