@@ -1,0 +1,30 @@
+name: probe-c-structure
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: probe-c-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  BUILD_TOOLS_VERSION: '35.0.1'
+  NDK_VERSION: '27.2.12479018'
+
+jobs:
+  probe:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - run: echo structure-probe-ok
