@@ -49,7 +49,7 @@ public final class RootEngine {
      * contents zeroed), so it must not be sourced from the upstream release page.
      * Point this at the project's own release once the patched module is published.
      */
-    public static final String KSU_MODULE_URL = "https://github.com/sarabpal-dev/KernelSU-Next/releases/tag/v3.4.0";
+    public static final String KSU_MODULE_URL = "https://github.com/AngelDark92/KernelSU-Next-GXR/releases/latest";
     private static final String REMOTE_DIR = "/data/local/tmp/gxr-root";
     private static final long RUN_DEADLINE_MS = 15 * 60 * 1000L;
 

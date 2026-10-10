@@ -94,7 +94,7 @@ shared_prefs/local_root.xml: ksu_loaded="true"
 
 `su` reaches UID 2000 only because of `allow_shell=1`. Per-app grants live in `/data/adb/ksu/.allowlist` and **survive reboots** (Shizuku's uid `10220` was already there); the KernelSU-Next manager caches "not installed" if it probed while no driver was loaded, so reopen it to refresh. Mechanism notes: `builds/gxr-kernel/ksu-probe-20261009/RECEIPT.md`.
 
-Known wart: `RootEngine.KSU_MODULE_URL` still opens the **upstream** KernelSU-Next v3.4.0 page, whose module does not work on this device. The owner publishes the patched module themselves; point that constant at their release and rebuild when it exists. Publishable bundle with the patched binary, the patcher and hashes: `builds/gxr-kernel/ksu-release-20261009/`.
+`RootEngine.KSU_MODULE_URL` points at the project's own KernelSU-Next-GXR release (`https://github.com/AngelDark92/KernelSU-Next-GXR/releases/latest`) — the upstream page's module does not work on this device. The release hosts the patched module, the matching manager APK and all hashes.
 
 ## Rollback
 

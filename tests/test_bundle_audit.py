@@ -18,7 +18,7 @@ class BundleAuditTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.workspace = Path(self.temporary.name) / "workspace"
+        self.workspace = Path(self.temporary.name).resolve() / "workspace"
         self.workspace.mkdir()
 
     def write_elf(self, path, elf_class=2, machine=183):
