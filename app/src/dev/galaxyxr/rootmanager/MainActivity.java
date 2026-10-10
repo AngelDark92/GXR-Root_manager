@@ -47,9 +47,14 @@ public final class MainActivity extends Activity {
      * on API 30+ even when the manager is installed.
      */
     private static final String KSU_MANAGER_PACKAGE = "com.rifsxd.ksunext";
+    /**
+     * Stable alias asset that every KernelSU-Next-GXR release publishes. The versioned APK name
+     * changes whenever upstream does; this one never does, so the link keeps resolving to the
+     * newest manager without this app ever being rebuilt.
+     */
     private static final String KSU_MANAGER_APK_URL =
             "https://github.com/AngelDark92/KernelSU-Next-GXR/releases/latest/download/"
-                    + "KernelSU_Next_v3.4.0-android12-5.10_33303-release.apk";
+                    + "KernelSU-Next-manager.apk";
 
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private RootEngine engine;

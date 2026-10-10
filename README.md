@@ -21,7 +21,11 @@ Root stays locked until the KernelSU-Next manager app is installed and detected
 every restart; without it the app can obtain root but nothing can use it.
 
 - Latest release: https://github.com/AngelDark92/KernelSU-Next-GXR/releases/latest
-- Direct APK: https://github.com/AngelDark92/KernelSU-Next-GXR/releases/latest/download/KernelSU_Next_v3.4.0-android12-5.10_33303-release.apk
+- Direct APK: https://github.com/AngelDark92/KernelSU-Next-GXR/releases/latest/download/KernelSU-Next-manager.apk
+
+Both follow the newest release on their own. The APK link uses the `KernelSU-Next-manager.apk`
+alias that every release publishes, so it keeps working when a later release renames the
+versioned APK.
 
 Install the APK, then press **Root now** here. The app re-checks on every start and unlocks as
 soon as the manager is detected.
