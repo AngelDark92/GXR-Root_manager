@@ -100,6 +100,8 @@ shared_prefs/local_root.xml: ksu_loaded="true"
 
 Reboot the headset (SELinux returns to Enforcing, root gone, `panic_on_oops` back to default), then uninstall the app if desired. Nothing is written to any verified partition; there is nothing else to undo.
 
+> Note (current builds): this "nothing else to undo" predates the KernelSU late-load and the wireless-debugging setting writes. Since then, state survives a reboot: `/data/local/tmp/gxr-root` (stock Android does not clear `/data/local/tmp`), `/data/adb/ksu/*` (KernelSU-Next's, incl. `.allowlist`), and the `Settings.Global` adb values. Use the app's **Remove root** before uninstalling; see the README's "Remove root / uninstall".
+
 ## Never
 
 No flashing, no remount, no AVB/slot change, no modification of any verified partition, no automatic root retry.

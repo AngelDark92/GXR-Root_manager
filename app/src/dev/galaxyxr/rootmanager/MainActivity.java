@@ -27,6 +27,7 @@ import org.json.JSONObject;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 /**
  * One screen: root status, the two actions that matter, a log, and the rare fallbacks.
@@ -443,11 +444,15 @@ public final class MainActivity extends Activity {
         }));
 
         LinearLayout removal = card("Remove");
-        text(removal, "Uninstall removes the app only. Root is kernel-memory only and disappears at "
-                + "the next restart either way.", 14, MUTED, false);
-        button(removal, "Uninstall this app", true, ignored -> danger("Uninstall Root Manager?",
-                "Android will ask you to confirm.", "Uninstall", () -> startActivity(
-                        new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + getPackageName())))));
+        text(removal, "Remove root first: uninstalling alone leaves the payload files in /data/local/tmp "
+                + "and keeps this app's root-related settings. Kernel-memory root clears only on a "
+                + "restart.", 14, MUTED, false);
+        gatedButtons.add(button(removal, "Remove root", true, ignored -> confirmRemoveRoot()));
+        gatedButtons.add(button(removal, "Uninstall this app", false, ignored -> danger("Uninstall Root Manager?",
+                "Android removes the app and its files. This app first removes its root traces "
+                        + "(boot re-root setting, staged files in /data/local/tmp, wireless-debugging "
+                        + "setting). Kernel-memory root clears only on a restart.",
+                "Remove root, then uninstall", this::removeThenUninstall)));
 
         showStoredStatus();
     }
@@ -471,6 +476,55 @@ public final class MainActivity extends Activity {
                         + "- Nothing is flashed, no partition is written, the bootloader stays locked.\n"
                         + "- No warranty. You accept the risk by pressing the button below.",
                 "I accept \u2014 root now", this::startRoot);
+    }
+
+    private void confirmRemoveRoot() {
+        danger("Remove root traces?",
+                "- Disables re-root after every restart.\n"
+                        + "- Deletes the staged payload files and the daemon socket.\n"
+                        + "- Reverts the wireless-debugging setting this app wrote.\n"
+                        + "- Does not kill running root processes and cannot clear kernel memory — "
+                        + "restart to finish.\n"
+                        + "- Nothing is flashed; no warranty. You accept the risk by pressing below.",
+                "Remove root", () -> removeRootFlow(ignored -> { }));
+    }
+
+    private void removeThenUninstall() {
+        removeRootFlow(report -> {
+            if (report.optBoolean("complete")) {
+                fireDeleteIntent();
+                return;
+            }
+            String output = report.optString("output");
+            danger("Cleanup could not finish",
+                    (output.isEmpty() ? "" : output + "\n\n")
+                            + "Files in /data/local/tmp stay until a shell removes them. Uninstall anyway?",
+                    "Uninstall anyway", this::fireDeleteIntent);
+        });
+    }
+
+    /** Cleanup runs on the worker; its log lines already stream via appendLog, and the
+     *  report comes back on the UI thread. */
+    private void removeRootFlow(Consumer<JSONObject> onReport) {
+        setBusy(true);
+        worker.execute(() -> {
+            JSONObject report = null;
+            try {
+                report = engine.removeRoot(this::appendLog);
+            } catch (Throwable failure) {
+                appendLog("[!] remove failed: " + failure);
+            }
+            JSONObject finalReport = report == null ? new JSONObject() : report;
+            runOnUiThread(() -> {
+                if (isDestroyed()) return;
+                setBusy(false);
+                onReport.accept(finalReport);
+            });
+        });
+    }
+
+    private void fireDeleteIntent() {
+        startActivity(new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + getPackageName())));
     }
 
     // ---------- helpers ----------

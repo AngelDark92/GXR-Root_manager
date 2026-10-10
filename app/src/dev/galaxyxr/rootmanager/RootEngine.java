@@ -1,8 +1,10 @@
 package dev.galaxyxr.rootmanager;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.provider.Settings;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -571,6 +573,176 @@ public final class RootEngine {
 
     public void rearm() {
         prefs.edit().putBoolean("attempt_ever", false).putString("last_outcome", "").putString("attempt_boot", "").commit();
+    }
+
+    /**
+     * Removes the root traces this app created: the boot re-root pref, the staged payload
+     * files and the daemon socket, the wireless-debugging settings this app wrote, the
+     * shell grant and the app's external payload copies. Synchronous: run on the caller's
+     * own worker, not engine.worker. Nothing is ever signalled or killed (the exploit's
+     * retained-allocation keeper must survive), and /data/adb is never touched.
+     */
+    public JSONObject removeRoot(Log log) {
+        JSONObject out = new JSONObject();
+        List<String> lines = new ArrayList<>();
+        Log tee = text -> {
+            log.line(text);
+            lines.add(text);
+        };
+        boolean connected = false;
+        boolean bootDisabled = false;
+        boolean remoteClean = false;
+        try {
+            if (runLogWriter != null) {
+                tee.line("[!] a root run is in progress; try again after it finishes");
+                try {
+                    out.put("state", "busy");
+                    out.put("complete", false);
+                    out.put("output", String.join("\n", lines));
+                } catch (Exception ignored) {
+                }
+                return out;
+            }
+
+            try {
+                RootService.setAutoBoot(context, false);
+                bootDisabled = true;
+                tee.line("[+] boot re-root disabled");
+            } catch (Exception failure) {
+                tee.line("[!] boot re-root not disabled: "
+                        + (failure.getMessage() == null ? failure.getClass().getSimpleName() : failure.getMessage()));
+            }
+
+            connected = adbSerial != null && !adbSerial.isEmpty();
+            if (!connected) {
+                // Mirror of the connect block in verifyRoot(): same discovery, same loop.
+                try {
+                    startServer();
+                    List<Integer> candidates = PortDiscovery.discoverPorts(context, 10000, ignored -> {});
+                    String saved = prefs.getString("connect_port", "");
+                    if (!saved.isEmpty() && !candidates.contains(Integer.parseInt(saved))) {
+                        candidates.add(Integer.parseInt(saved));
+                    }
+                    for (int candidate : candidates) {
+                        String connectOut = adbOnce(List.of("connect", "localhost:" + candidate), 60000);
+                        if (connectOut.contains("connected to") || connectOut.contains("already connected")) {
+                            adbSerial = "localhost:" + candidate;
+                            break;
+                        }
+                    }
+                } catch (Exception ignored) {
+                }
+                connected = adbSerial != null && !adbSerial.isEmpty();
+            }
+            if (!connected) {
+                tee.line("[!] not connected to the headset; staged files stay in /data/local/tmp — "
+                        + "turn Wireless debugging on and press Remove root again");
+            }
+
+            if (connected) {
+                boolean viaDaemon = false;
+                try {
+                    viaDaemon = shellCommand(REMOTE_DIR + "/" + PAYLOAD_DAEMON + " -c id", 20000)
+                            .contains("uid=0(root)");
+                } catch (Exception ignored) {
+                }
+                String rm = "rm -f " + REMOTE_DIR + "/" + PAYLOAD_EXPLOIT
+                        + " " + REMOTE_DIR + "/" + PAYLOAD_DAEMON
+                        + " " + REMOTE_DIR + "/" + PAYLOAD_KSU
+                        + " /data/local/tmp/temp_su.sock; rmdir " + REMOTE_DIR + " 2>/dev/null; echo GXR_CLEAN";
+                try {
+                    // The live daemon is the only uid-0 tool when present; unlinking its own
+                    // binary and socket is safe — no process is signalled or killed.
+                    String clean = viaDaemon
+                            ? shellCommand(REMOTE_DIR + "/" + PAYLOAD_DAEMON + " -c \"" + rm + "\"", 30000)
+                            : shellCommand(rm, 30000);
+                    if (!clean.contains("GXR_CLEAN")) {
+                        tee.line("[!] cleanup command did not report done: " + clean.replace("\n", " "));
+                    }
+                } catch (Exception failure) {
+                    tee.line("[!] cleanup command failed: " + failure.getMessage());
+                }
+                try {
+                    String left = shellCommand(
+                            "ls " + REMOTE_DIR + " 2>&1; ls /data/local/tmp/temp_su.sock 2>&1", 20000);
+                    remoteClean = left.split("No such file or directory", -1).length - 1 >= 2;
+                    if (remoteClean) {
+                        tee.line("[+] staged files and daemon socket removed");
+                    } else {
+                        tee.line("[!] leftovers remain: " + left.replace("\n", " "));
+                    }
+                } catch (Exception failure) {
+                    tee.line("[!] leftover check failed: " + failure.getMessage());
+                }
+
+            }
+
+            // Settings revert (step 4): always attempted — these values outlive both reboot
+            // and uninstall, so a missing connection must not skip them. Must stay BEFORE the
+            // grant drop below: pm revoke strips the very permission this write needs.
+            boolean settingsGranted = context.checkSelfPermission("android.permission.WRITE_SECURE_SETTINGS")
+                    == android.content.pm.PackageManager.PERMISSION_GRANTED;
+            if (settingsGranted) {
+                try {
+                    ContentResolver resolver = context.getContentResolver();
+                    Settings.Global.putInt(resolver, "adb_wifi_enabled", 0);
+                    resolver.delete(Settings.Global.getUriFor("adb_allowed_connection_time"), null, null);
+                    tee.line("[+] wireless-debugging setting reverted");
+                } catch (Exception failure) {
+                    tee.line("[!] settings not reverted (" + failure.getClass().getSimpleName()
+                            + (failure.getMessage() == null ? "" : ": " + failure.getMessage()) + ")");
+                }
+            } else {
+                tee.line("[!] settings not reverted: WRITE_SECURE_SETTINGS is not granted");
+            }
+
+            // Best-effort grant drop (step 5): last, only while a shell is reachable.
+            if (connected && settingsGranted) {
+                try {
+                    String revoked = shellCommand(
+                            "pm revoke dev.galaxyxr.rootmanager android.permission.WRITE_SECURE_SETTINGS",
+                            20000);
+                    tee.line("[+] WRITE_SECURE_SETTINGS grant dropped"
+                            + (revoked.isEmpty() ? "" : ": " + revoked.replace("\n", " ")));
+                } catch (Exception failure) {
+                    tee.line("[!] grant drop skipped: " + failure.getMessage());
+                }
+            }
+
+            try {
+                File payloadDir = context.getExternalFilesDir("payload");
+                if (payloadDir != null && payloadDir.isDirectory()) {
+                    File[] copies = payloadDir.listFiles();
+                    if (copies != null) {
+                        for (File copy : copies) {
+                            try {
+                                copy.delete();
+                            } catch (Exception ignored) {
+                            }
+                        }
+                    }
+                }
+                tee.line("[+] payload copies cleared");
+            } catch (Exception failure) {
+                tee.line("[!] payload copies not cleared: " + failure.getMessage());
+            }
+
+            tee.line("[+] remove done. Restart the headset to clear kernel-memory root and the daemon "
+                    + "(nothing was killed).");
+            tee.line("[!] KernelSU-Next state under /data/adb and the wireless-debugging pairing entry "
+                    + "are not this app's — see README.");
+        } catch (Throwable failure) {
+            tee.line("[!] remove failed: " + failure.getClass().getSimpleName()
+                    + (failure.getMessage() == null ? "" : ": " + failure.getMessage()));
+        }
+        boolean complete = bootDisabled && remoteClean;
+        try {
+            out.put("state", !connected ? "not_connected" : complete ? "removed" : "partial");
+            out.put("complete", complete);
+            out.put("output", String.join("\n", lines));
+        } catch (Exception ignored) {
+        }
+        return out;
     }
 
     /** Synchronous root check via the daemon; never claims the device is unrooted. */

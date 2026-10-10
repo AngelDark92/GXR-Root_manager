@@ -43,19 +43,27 @@ soon as the manager is detected.
 adb shell pm grant dev.galaxyxr.rootmanager android.permission.WRITE_SECURE_SETTINGS
 ```
 
-The grant survives reboots; only uninstall or a signer change loses it. With it the service can also re-enable Wireless debugging (`Settings.Global.adb_wifi_enabled=1`).
+The grant survives reboots; only uninstall, a signer change, or **Remove root** (best effort) loses it. With it the service can also re-enable Wireless debugging (`Settings.Global.adb_wifi_enabled=1`).
 
 ## Verify root semantics
 
 `Verify root` runs in the **uid 2000 shell** context, which is the only context the daemon authorizes (it allowlists its initiating UID). Results: `verified_root`, `not_authorized`, `not_rooted`, `unreachable`. A missing or unreachable daemon means **root cannot be verified — never that the device has no root**. The app-process path (`NativeDiagnostics` → native verifier) can only ever report "manager access denied" from the app's own UID.
+
+## Remove root / uninstall
+
+**Remove root** reverses what this app set up: it disables re-root-after-restart, deletes the staged files in `/data/local/tmp/gxr-root` and the daemon socket, clears its payload copies, reverts its `Settings.Global` writes (`adb_wifi_enabled`, `adb_allowed_connection_time`) and tries to drop its `WRITE_SECURE_SETTINGS` grant. It never kills running processes: kernel-memory root and the `gxr-rootd` daemon end at the next restart (SELinux returns to Enforcing then). `/data/local/tmp` is not cleared by stock Android — without this cleanup the staged files stay there.
+
+**Uninstall this app** runs Remove root first, then hands over to Android's uninstall dialog; if cleanup cannot reach the shell it asks again before uninstalling. Uninstalling from Settings instead skips all of it.
+
+Never touched, even on removal: KernelSU-Next's own state under `/data/adb` (including `/data/adb/ksu/.allowlist` — it survives reboots; remove it with the KernelSU-Next manager, not from here) and the wireless-debugging pairing entry (forget the paired device in Developer options > Wireless debugging). `persist.adb.tls_server.enable`, if set on this device, was not written by this app; it makes the wireless-debugging toggle return after restarts, and clearing it needs root.
 
 ## Layout
 
 ```
 app/AndroidManifest.xml                     activity, BootReceiver, RootService, AccessProvider
 app/src/dev/galaxyxr/rootmanager/
-  MainActivity.java     status, Root now, Verify root, boot toggle, log, advanced
-  RootEngine.java       local-adb engine, boot-id latch, exploit run, verifyRoot()
+  MainActivity.java     status, Root now, Verify root, boot toggle, Remove root, log, advanced
+  RootEngine.java       local-adb engine, boot-id latch, exploit run, verifyRoot(), removeRoot()
   RootService.java      foreground re-root at boot (specialUse type)
   BootReceiver.java     boot/unlock/update trigger, fingerprint-gated
   PortDiscovery.java    mDNS discovery of the wireless-debugging port
@@ -102,7 +110,7 @@ notes: `docs/GitHub-CI-Notes-2026-10-10.md`.
 - Never flash, remount, patch a boot image, unlock the bootloader, disable AVB, switch slots, write a verified partition, or change display settings. Nothing here does.
 - Root lives in kernel memory: no persistence, no module loading, no app-facing `su` on `PATH`. Callers that expect `su` (root apps, Shizuku root mode) will not find it; Shizuku's ADB mode and this app's daemon are the available routes.
 - The exploit sets SELinux permissive and clears `panic_on_oops` for the current boot only; an error after kernel changes can still crash the headset. One attempt per boot, no automatic retry after a partial failure — rearm manually.
-- KernelSU is *not* part of this route: the Samsung module DFRoot late-loads aborts on this kernel because it requires DEFEX symbols that this firmware does not have (`ksu_samsung_defex_init()` fails closed), so the manager reports "not installed".
+- The module this app loads is the project's byte-modified KernelSU-Next build (fail-open DEFEX build with `__versions` zeroed in place, from `KernelSU-Next-GXR`). The *upstream* module aborts on this firmware at `ksu_samsung_defex_init()` (fails closed) — never substitute the upstream module.
 - The root daemon cannot drive framework services (`cmd: Can't find service: settings`); do `pm`/`settings` work over a uid 2000 shell or from the app with `WRITE_SECURE_SETTINGS`.
 
 ## Integration API (unchanged, grants nothing)
