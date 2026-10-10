@@ -67,6 +67,13 @@ jobs:
 
       - name: Unit tests
         shell: bash
+        # The default Windows runner temp lives under an 8.3-aliased profile path
+        # (C:\Users\runneradmin -> C:\Users\RUNNER~1), which makes Path.resolve() disagree with the
+        # unresolved path in the fixture assertions. runner.temp is alias-free.
+        env:
+          TEMP: ${{ runner.temp }}
+          TMP: ${{ runner.temp }}
+          TMPDIR: ${{ runner.temp }}
         run: python -m unittest discover -s tests -v
 
       - name: Release policy
