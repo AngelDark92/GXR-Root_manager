@@ -4,6 +4,16 @@ On-device root for the owner's Galaxy XR (SM-I610, `I610UEU2AZF3`, kernel 5.10.2
 
 The app drives an embedded arm64 adb client against the headset's own wireless debugging, gets a `uid 2000` shell, runs the GhostLock (CVE-2026-43499) exploit, and a `uid 0` su daemon ends up answering on `/data/local/tmp/temp_su.sock`. Root is kernel-memory only: a restart clears it, so it is re-obtained once per boot. Verified live 2026-10-09 — see [docs/RUNBOOK-0.3.4-ondevice.md](docs/RUNBOOK-0.3.4-ondevice.md).
 
+## Dangers — read before rooting
+
+- The kernel exploit can crash or hang the headset; if it hangs, hold power to restart it.
+- The exploit sets SELinux permissive and clears `panic_on_oops` for the current boot only.
+- Root is re-obtained once per boot and never persists; a restart clears it.
+- One attempt per boot; after a partial failure, rearm manually.
+- Unattended boot re-root runs with nobody watching the screen.
+- Nothing is flashed, no partition is written, the bootloader stays locked.
+- No warranty. The owner accepts the risk.
+
 ## Flow
 
 0. **Pair once.** On the headset open Developer options > Wireless debugging > *Pair device with pairing code*, then in the app's **Pairing** card press **Find port** (the app discovers the pairing port over mDNS `_adb-tls-pairing._tcp`), type the 6-digit code and press **Pair now**. Pairing is required on this build, and the pairing port is *not* the connect port. The code is stored, and `Root now` refuses to run without it.

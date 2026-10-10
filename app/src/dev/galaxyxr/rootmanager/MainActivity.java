@@ -52,6 +52,7 @@ public final class MainActivity extends Activity {
     private Button rootButton;
     private Button verifyButton;
     private boolean busy;
+    private boolean autoBootAccepted;
     private static boolean autoChecked;
     private final List<Button> gatedButtons = new java.util.ArrayList<>();
 
@@ -292,8 +293,31 @@ public final class MainActivity extends Activity {
         autoBoot.setTextSize(15);
         autoBoot.setChecked(RootService.autoBoot(this));
         autoBoot.setOnCheckedChangeListener((view, checked) -> {
-            RootService.setAutoBoot(this, checked);
-            appendLog(checked ? "[*] boot re-root enabled" : "[*] boot re-root disabled");
+            if (!checked) {
+                autoBootAccepted = false;
+                RootService.setAutoBoot(this, false);
+                appendLog("[*] boot re-root disabled");
+            } else if (autoBootAccepted) {
+                autoBootAccepted = false;
+                RootService.setAutoBoot(this, true);
+                appendLog("[*] boot re-root enabled");
+            } else {
+                view.setChecked(false);
+                danger("Re-root after every restart?",
+                        "Every restart would run the exploit again by itself, with no one watching the "
+                                + "screen.\n\n"
+                                + "- Each boot gets one automatic attempt; a failed attempt stays latched "
+                                + "until you rearm.\n"
+                                + "- A crash during an unattended run can leave the headset on a black "
+                                + "screen until you restart it.\n"
+                                + "- Unattended restarts also need the one-time WRITE_SECURE_SETTINGS grant "
+                                + "shown below, and\n"
+                                + "  Wireless debugging must be able to re-enable itself.\n"
+                                + "- Root is still kernel-memory only and disappears on the next restart.\n"
+                                + "- No warranty. You accept the risk by pressing the button below.",
+                        "I accept \u2014 enable",
+                        () -> { autoBootAccepted = true; view.setChecked(true); });
+            }
         });
         root.addView(autoBoot, new LinearLayout.LayoutParams(-1, -2));
 
@@ -364,12 +388,19 @@ public final class MainActivity extends Activity {
     }
 
     private void confirmRoot() {
-        danger("Run the root exploit now?",
-                "One attempt in this boot. It sets SELinux permissive for this boot and clears "
-                        + "panic_on_oops. Keep Wireless debugging on. If the headset shows "
-                        + "\"Allow wireless debugging?\", tap Always allow. A kernel exploit can "
-                        + "crash the device; if it hangs, restart the headset.",
-                "Root now", this::startRoot);
+        danger("Root this headset?",
+                "Rooting runs a kernel exploit on your own Galaxy XR. Before you continue:\n\n"
+                        + "- One attempt per boot; a failed attempt stays latched until you rearm or "
+                        + "restart.\n"
+                        + "- The exploit sets SELinux to permissive and clears panic_on_oops for this "
+                        + "boot only.\n"
+                        + "- A kernel exploit can crash or hang the headset; if it hangs, hold power to "
+                        + "restart it.\n"
+                        + "- Root lives in kernel memory only: a restart clears it and nothing is made "
+                        + "persistent.\n"
+                        + "- Nothing is flashed, no partition is written, the bootloader stays locked.\n"
+                        + "- No warranty. You accept the risk by pressing the button below.",
+                "I accept \u2014 root now", this::startRoot);
     }
 
     // ---------- helpers ----------
