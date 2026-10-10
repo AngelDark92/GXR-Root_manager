@@ -4,8 +4,9 @@
 Version truth lives in `tools/build_root.py` (`VERSION`). This module is its only writer;
 `tools/verify_release_version.py` fails the run when another source disagrees.
 
-Commit prefixes drive the bump: `fix:` patch, `feat:` minor, `rework:` major. Any other
-prefix bumps nothing -- project policy, not vanilla Conventional Commits.
+Commit prefixes drive the bump: `fix:` patch, `feat:` minor, `rework:` major; an
+optional `(scope)` or `!` sits between the keyword and the colon. Any other prefix bumps
+nothing -- project policy, not vanilla Conventional Commits.
 
 Publish gate (design notes: `docs/GitHub-CI-Notes-2026-10-10.md`):
 
@@ -42,7 +43,10 @@ MANIFEST_RE = re.compile(
     r'android:versionCode="(\d+)" android:versionName="(\d+\.\d+\.\d+)-root"')
 TAG_RE = re.compile(r"v(\d+\.\d+\.\d+)\Z")
 
-PREFIXES = (("rework:", "major"), ("feat:", "minor"), ("fix:", "patch"))
+# Driver-compatible subject match (`release-policy.cjs`): an optional `(scope)` and `!`
+# may sit between the keyword and the colon.
+COMMIT_RE = re.compile(r"^(rework|feat|fix)(?:\([^\r\n)]+\))?!?:\s+\S")
+DELTA_BY_TYPE = {"rework": "major", "feat": "minor", "fix": "patch"}
 RANK = {"patch": 1, "minor": 2, "major": 3}
 GROUPS = (("major", "Reworks"), ("minor", "Features"), ("patch", "Fixes"))
 BOT_NAME = "github-actions[bot]"
@@ -119,16 +123,19 @@ def commit_subjects(since_version=None):
     return [line for line in result.stdout.splitlines() if line.strip()]
 
 
+def commit_delta(subject):
+    match = COMMIT_RE.match(subject)
+    return DELTA_BY_TYPE[match.group(1)] if match else None
+
+
 def requested_delta(subjects):
     highest = None
     for subject in subjects:
         if subject.startswith("chore(release):"):
             continue
-        for prefix, delta in PREFIXES:
-            if subject.startswith(prefix):
-                if highest is None or RANK[delta] > RANK[highest]:
-                    highest = delta
-                break
+        delta = commit_delta(subject)
+        if delta is not None and (highest is None or RANK[delta] > RANK[highest]):
+            highest = delta
     return highest
 
 
@@ -199,14 +206,11 @@ def changelog_section(version, delta, subjects, day):
     for subject in subjects:
         if subject.startswith("chore(release):"):
             continue
-        placed = False
-        for prefix, key in PREFIXES:
-            if subject.startswith(prefix):
-                grouped[key].append(subject)
-                placed = True
-                break
-        if not placed:
+        kind = commit_delta(subject)
+        if kind is None:
             grouped["other"].append(subject)
+        else:
+            grouped[kind].append(subject)
     if delta:
         grouped[delta].insert(0, f"Release bump policy: {delta}.")
     for key in ("major", "minor", "patch", "other"):

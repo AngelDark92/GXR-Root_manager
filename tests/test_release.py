@@ -65,6 +65,13 @@ class PolicyMathTests(unittest.TestCase):
     def test_only_known_prefixes_bump(self):
         self.assertEqual(POLICY.requested_delta(["docs: a", "chore: b", "test: c"]), None)
 
+    def test_scoped_and_bang_prefixes_are_recognized(self):
+        self.assertEqual(POLICY.requested_delta(["fix(ci): a"]), "patch")
+        self.assertEqual(POLICY.requested_delta(["feat(ui): b"]), "minor")
+        self.assertEqual(POLICY.requested_delta(["rework(api): c"]), "major")
+        self.assertEqual(POLICY.requested_delta(["fix(ci)!: d"]), "patch")
+        self.assertEqual(POLICY.requested_delta(["fixed: a", "fixes: b"]), None)
+
     def test_release_commits_never_trigger_another_bump(self):
         self.assertEqual(
             POLICY.requested_delta(["chore(release): v0.3.6", "Release-source: 1234"]), None)
@@ -77,6 +84,13 @@ class PolicyMathTests(unittest.TestCase):
         self.assertIn("- feat: new thing", section)
         self.assertIn("### Fixes", section)
         self.assertNotIn("chore(release)", section)
+
+    def test_changelog_groups_scoped_fix_commits_under_fixes(self):
+        section = POLICY.changelog_section(
+            "0.3.6", "patch", ["fix(ci): runner temp"], "2026-10-10")
+        self.assertIn("### Fixes", section)
+        self.assertIn("- fix(ci): runner temp", section)
+        self.assertIn("- Release bump policy: patch.", section)
 
 
 class PlanTests(unittest.TestCase):
@@ -182,7 +196,8 @@ class VersionSourceTests(unittest.TestCase):
         code, manifest_version = POLICY.read_manifest(ROOT)
         self.assertEqual(manifest_version, POLICY.read_version(ROOT))
         self.assertGreaterEqual(code, 1)
-        self.assertEqual(POLICY.read_version(ROOT), "0.3.5")
+        # The version moves with every release; assert the shape, not a pinned value.
+        self.assertRegex(POLICY.read_version(ROOT), r"^\d+\.\d+\.\d+$")
 
 
 class TestDependencyTests(unittest.TestCase):
