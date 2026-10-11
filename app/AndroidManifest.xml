@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="dev.galaxyxr.rootmanager" android:versionCode="17" android:versionName="0.6.0-root">
+    package="dev.galaxyxr.rootmanager" android:versionCode="18" android:versionName="0.7.0-root">
     <uses-sdk android:minSdkVersion="34" android:targetSdkVersion="34" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-feature android:name="android.hardware.faketouch" android:required="false" />
