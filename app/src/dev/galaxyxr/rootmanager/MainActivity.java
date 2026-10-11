@@ -13,6 +13,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.InputType;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -64,8 +67,8 @@ public final class MainActivity extends Activity {
     private LinearLayout logCard;
     private ScrollView pageScroll;
     private ScrollView logScroll;
-    private LinearLayout logLines;
-    private TextView logPlaceholder;
+    private TextView logTextView;
+    private final List<String> logBuffer = new java.util.ArrayList<>();
     private TextView statusView;
     private TextView statusDetail;
     private TextView ksuView;
@@ -123,21 +126,13 @@ public final class MainActivity extends Activity {
             showKernelSuRequired();
             return;
         }
-        if (!PortDiscovery.wirelessEnabled(this)) {
-            appendLog("[!] wireless debugging appears OFF");
-            danger("Wireless debugging appears off",
-                    "Root reaches the headset through its own Wireless debugging. Turn it on: "
-                            + "Settings > Developer options > Wireless debugging. Then come back here "
-                            + "and press Root now again.",
-                    "Open Developer options", this::openDeveloperOptions);
-            return;
-        }
         if (engine.pairCode().isEmpty()) {
             appendLog("[!] pairing code missing");
             danger("Pairing code required",
-                    "Pairing is required on this build. On the headset open Developer options > Wireless "
-                            + "debugging > Pair device with pairing code, then type the 6-digit code shown "
-                            + "there into the Pairing card below and press Pair now.",
+                    "Pairing is required on this build. On the headset open Settings > General > "
+                            + "Developer options > Wireless debugging > Pair device with pairing code, "
+                            + "then type the 6-digit code shown there into the Pairing card below and "
+                            + "press Pair now.",
                     "Open Developer options", this::openDeveloperOptions);
             return;
         }
@@ -157,10 +152,11 @@ public final class MainActivity extends Activity {
                 if (ports.isEmpty()) {
                     appendLog("[!] no pairing port advertised; is the pairing dialog open?");
                     danger("Pairing port not found",
-                            "No pairing port was advertised. Open Developer options > Wireless debugging "
-                                    + "> Pair device with pairing code and keep that dialog open, then "
-                                    + "press Find port again. The pairing port is not the connect port.",
-                            "Got it", null);
+                            "No pairing port was advertised. Open Settings > General > Developer "
+                                    + "options > Wireless debugging > Pair device with pairing code and "
+                                    + "keep that dialog open, then press Find port again. The pairing "
+                                    + "port is not the connect port.",
+                            "Open settings", this::openDeveloperOptions);
                     return;
                 }
                 int port = ports.get(0);
@@ -188,16 +184,6 @@ public final class MainActivity extends Activity {
         if (pairing) return;
         pairing = true;
         savePairing(pairCode, pairPort);
-        if (!PortDiscovery.wirelessEnabled(this)) {
-            appendLog("[!] wireless debugging appears OFF");
-            danger("Wireless debugging appears off",
-                    "Pairing reaches the headset through its own Wireless debugging. Turn it on: "
-                            + "Settings > Developer options > Wireless debugging. Then come back here "
-                            + "and press Pair now again.",
-                    "Open Developer options", this::openDeveloperOptions);
-            pairing = false;
-            return;
-        }
         String code = engine.pairCode();
         if (code.isEmpty()) {
             appendLog("[!] enter the pairing code first");
@@ -221,11 +207,12 @@ public final class MainActivity extends Activity {
                             if (isDestroyed()) return;
                             pairing = false;
                             danger("Pairing port not found",
-                                    "No pairing port was advertised. Open Developer options > Wireless "
-                                            + "debugging > Pair device with pairing code and keep that "
-                                            + "dialog open, then press Find port again. The pairing "
-                                            + "port is not the connect port.",
-                                    "Got it", null);
+                                    "No pairing port was advertised. Open Settings > General > "
+                                            + "Developer options > Wireless debugging > Pair device "
+                                            + "with pairing code and keep that dialog open, then "
+                                            + "press Find port again. The pairing port is not the "
+                                            + "connect port.",
+                                    "Open settings", this::openDeveloperOptions);
                         });
                         return;
                     }
@@ -262,9 +249,9 @@ public final class MainActivity extends Activity {
                     if (isDestroyed()) return;
                     pairing = false;
                     danger("Pairing failed",
-                            "Pairing could not run: " + message + "\nOpen Developer options > Wireless "
-                                    + "debugging > Pair device with pairing code, then press Find port "
-                                    + "and Pair now.",
+                            "Pairing could not run: " + message + "\nOpen Settings > General > "
+                                    + "Developer options > Wireless debugging > Pair device with "
+                                    + "pairing code, then press Find port and Pair now.",
                             "Got it", null);
                 });
             }
@@ -319,15 +306,20 @@ public final class MainActivity extends Activity {
                     "Got it", null);
             return;
         }
+        String lower = reason.toLowerCase();
+        boolean offerSettings = "unreachable".equals(state)
+                || lower.contains("wireless") || lower.contains("connect");
         danger("Root not verified",
                 (reason.isEmpty() ? "The run did not confirm root." : reason)
                         + "\n\nCheck the log for the failing step.\n"
-                        + "- Wireless debugging must be on; the pairing code and ports live in the Pairing "
-                        + "card (a wrong saved port is a common cause — fix via Find port or the Advanced "
+                        + "- Wireless debugging must be on: Settings > General > Developer options > "
+                        + "Wireless debugging. The pairing code and ports live in the Pairing card "
+                        + "(a wrong saved port is a common cause — fix via Find port or the Advanced "
                         + "card).\n"
                         + "- An unavailable check never means the device has no root.\n"
                         + "After fixing, press Rearm or restart for a fresh attempt — one attempt per boot.",
-                "Got it", null);
+                offerSettings ? "Open Developer options" : "Got it",
+                offerSettings ? this::openDeveloperOptions : null);
     }
 
     private void applyResult(JSONObject result) {
@@ -509,9 +501,9 @@ public final class MainActivity extends Activity {
         }
 
         LinearLayout pairing = card("Pairing");
-        text(pairing, "Pairing is required on this build. On the headset open Developer options > "
-                + "Wireless debugging > Pair device with pairing code, keep that dialog open, then use "
-                + "Find port and Pair now here.", 14, MUTED, false);
+        text(pairing, "Pairing is required on this build. On the headset open Settings > General > "
+                + "Developer options > Wireless debugging > Pair device with pairing code, keep that "
+                + "dialog open, then use Find port and Pair now here.", 14, MUTED, false);
         EditText pairCode = new EditText(this);
         pairCode.setHint("Pairing code (6 digits)");
         pairCode.setHintTextColor(MUTED);
@@ -535,11 +527,14 @@ public final class MainActivity extends Activity {
 
         logCard = card("Log");
         logScroll = new ScrollView(this);
-        logLines = new LinearLayout(this);
-        logLines.setOrientation(LinearLayout.VERTICAL);
-        logScroll.addView(logLines, new ScrollView.LayoutParams(-1, -2));
+        logTextView = new TextView(this);
+        logTextView.setTextSize(13);
+        logTextView.setTextColor(MUTED);
+        logTextView.setTextIsSelectable(true);
+        logTextView.setPadding(0, dp(4), 0, dp(8));
+        logTextView.setText("No run yet.");
+        logScroll.addView(logTextView, new ScrollView.LayoutParams(-1, -2));
         logCard.addView(logScroll, new LinearLayout.LayoutParams(-1, dp(240)));
-        logPlaceholder = text(logLines, "No run yet.", 13, MUTED, false);
 
         LinearLayout advanced = card("Advanced");
         EditText manualPort = new EditText(this);
@@ -652,14 +647,18 @@ public final class MainActivity extends Activity {
     private void appendLog(String line) {
         if (line == null || line.trim().isEmpty()) return;
         runOnUiThread(() -> {
-            if (logLines == null) return;
-            if (logPlaceholder != null) {
-                logLines.removeView(logPlaceholder);
-                logPlaceholder = null;
+            if (logTextView == null) return;
+            logBuffer.add(line);
+            while (logBuffer.size() > LOG_LIMIT) logBuffer.remove(0);
+            SpannableStringBuilder text = new SpannableStringBuilder();
+            for (String entry : logBuffer) {
+                int start = text.length();
+                text.append(entry).append('\n');
+                text.setSpan(new ForegroundColorSpan(entry.startsWith("[+]") ? ACCENT : MUTED),
+                        start, start + entry.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
-            text(logLines, line, 13, line.startsWith("[+]") ? ACCENT : MUTED, false);
-            while (logLines.getChildCount() > LOG_LIMIT) logLines.removeViewAt(0);
-            if (logScroll != null) logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
+            logTextView.setText(text);
+            logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
         });
     }
 
@@ -671,9 +670,17 @@ public final class MainActivity extends Activity {
 
     private void openDeveloperOptions() {
         try {
-            startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS));
+            Intent developer = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
+            if (developer.resolveActivity(getPackageManager()) != null) {
+                startActivity(developer);
+                return;
+            }
+        } catch (Throwable ignored) {
+        }
+        try {
+            startActivity(new Intent(Settings.ACTION_SETTINGS));
         } catch (Throwable failure) {
-            appendLog("[!] cannot open Developer options: " + failure);
+            appendLog("[!] cannot open Settings: " + failure);
         }
     }
 

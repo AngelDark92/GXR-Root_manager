@@ -294,7 +294,8 @@ public final class RootEngine {
         if (PortDiscovery.wirelessEnabled(context)) {
             log.line("    wireless debugging toggle: ON");
         } else {
-            log.line("[!] wireless debugging toggle appears OFF (Settings > Developer options > Wireless debugging)");
+            log.line("[!] wireless debugging read as OFF — advisory only: this check can be denied to apps "
+                    + "(Settings > General > Developer options > Wireless debugging)");
         }
         List<Integer> candidates = PortDiscovery.discoverPorts(context, 10000, text -> log.line(text));
         String saved = prefs.getString("connect_port", "");
