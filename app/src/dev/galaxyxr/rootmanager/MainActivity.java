@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -21,6 +22,7 @@ import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.widget.Button;
@@ -48,6 +50,9 @@ public final class MainActivity extends Activity {
     private static final int MUTED = Color.rgb(167, 185, 198);
     private static final int ACCENT = Color.rgb(109, 228, 193);
     private static final int WARN = Color.rgb(240, 173, 78);
+    /** Log box: darker than the card, with a border, so it reads as its own scrollable well. */
+    private static final int LOG_BACKGROUND = Color.rgb(9, 14, 20);
+    private static final int LOG_BORDER = Color.rgb(58, 76, 94);
     private static final int LOG_LIMIT = 300;
     /**
      * KernelSU-Next manager. Root here is kernel-memory only, so its manager is what keeps `su`
@@ -616,11 +621,20 @@ public final class MainActivity extends Activity {
         pairing.addView(pairActions, new LinearLayout.LayoutParams(-1, -2));
 
         logCard = card("Log");
-        logScroll = new ScrollView(this);
+        logScroll = new LogScrollView(this);
+        GradientDrawable logBox = new GradientDrawable();
+        logBox.setColor(LOG_BACKGROUND);
+        logBox.setCornerRadius(dp(10));
+        logBox.setStroke(dp(1), LOG_BORDER);
+        logScroll.setBackground(logBox);
+        logScroll.setVerticalScrollBarEnabled(true);
+        logScroll.setScrollbarFadingEnabled(false);
+        /* No nested-scroll handover: an over-drag inside the box must never move the page. */
+        logScroll.setNestedScrollingEnabled(false);
         logTextView = new TextView(this);
         logTextView.setTextSize(13);
         logTextView.setTextColor(MUTED);
-        logTextView.setPadding(0, dp(4), 0, dp(8));
+        logTextView.setPadding(dp(12), dp(10), dp(12), dp(10));
         /* Read-only box, deliberately NOT focusable and NOT selectable: on XR a selectable
          * TextView turns drags on it into text-selection gestures (the log then refuses to
          * scroll) and lets the focused child pull the page back to itself. Copy log covers
@@ -873,11 +887,11 @@ public final class MainActivity extends Activity {
         view.setTextColor(color);
         view.setTextSize(size);
         if (bold) view.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-        view.setTextIsSelectable(true);
-        /* Labels are no autofill targets, and TextView is important for autofill by default.
-         * A multi-line TextView in the autofill/assist walk crashes this build:
-         * TextView.onProvideAutofillStructure -> StaticLayout.getLineStart
-         * ArrayIndexOutOfBoundsException. Keep every label out of that walk. */
+        /* Not selectable (on XR a selectable TextView shows a text cursor and turns drags on
+         * it into selection gestures, eating page scrolling) and out of the autofill
+         * structure walk: TextView is important-for-autofill by default and the walk crashes
+         * this build on multi-line TextViews (onProvideAutofillStructure ->
+         * StaticLayout.getLineStart ArrayIndexOutOfBoundsException). */
         view.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
         view.setPadding(0, dp(4), 0, dp(8));
         parent.addView(view, new LinearLayout.LayoutParams(-1, -2));
@@ -914,5 +928,26 @@ public final class MainActivity extends Activity {
         params.setMargins(dp(4), dp(4), dp(4), dp(4));
         parent.addView(view, params);
         return view;
+    }
+
+    /**
+     * The log box. A drag that starts on it scrolls ONLY the box: the flag set on ACTION_DOWN
+     * keeps the page ScrollView from intercepting the gesture, and nested scrolling is turned
+     * off (see showPage) so the page cannot take over once the box reaches its end. Without
+     * both, the page around the log drifts whenever the owner drags the box.
+     */
+    private static final class LogScrollView extends ScrollView {
+        LogScrollView(Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean dispatchTouchEvent(MotionEvent event) {
+            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                ViewParent parent = getParent();
+                if (parent != null) parent.requestDisallowInterceptTouchEvent(true);
+            }
+            return super.dispatchTouchEvent(event);
+        }
     }
 }
