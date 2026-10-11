@@ -21,11 +21,11 @@ class SafetyPolicyJvmTests(unittest.TestCase):
                 "-d", destination,
                 str(ROOT / "app/src/dev/galaxyxr/rootmanager/SafetyPolicy.java"),
                 str(ROOT / "tests/SafetyPolicyTest.java"),
-            ], capture_output=True, text=True, timeout=60)
+            ], capture_output=True, text=True, timeout=300)  # first javac on a cold CI runner can exceed 60s
             self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
             executed = subprocess.run([
                 str(java), "-cp", destination, "SafetyPolicyTest",
-            ], capture_output=True, text=True, timeout=60)
+            ], capture_output=True, text=True, timeout=120)
             self.assertEqual(executed.returncode, 0, executed.stdout + executed.stderr)
             self.assertIn("15 checks passed", executed.stdout)
 

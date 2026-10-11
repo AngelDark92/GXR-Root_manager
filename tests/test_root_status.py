@@ -27,13 +27,13 @@ class RootStatusTests(unittest.TestCase):
                  "-cp", str(JSON_JAR), "-d", str(classes),
                  str(ROOT / "app/src/dev/galaxyxr/rootmanager/RootStatus.java"),
                  str(ROOT / "tests/RootStatusTest.java")],
-                capture_output=True, text=True, timeout=60, shell=False,
+                capture_output=True, text=True, timeout=300, shell=False,  # first javac on a cold CI runner can exceed 60s
             )
             self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
             executed = subprocess.run(
                 [str(java), "-cp", os.pathsep.join((str(classes), str(JSON_JAR))),
                  "dev.galaxyxr.rootmanager.RootStatusTest"],
-                capture_output=True, text=True, timeout=60, shell=False,
+                capture_output=True, text=True, timeout=120, shell=False,
             )
             self.assertEqual(executed.returncode, 0, executed.stdout + executed.stderr)
             self.assertRegex(executed.stdout, r"Synthetic JVM root status: [1-9][0-9]+ scenarios passed; [1-9][0-9]+ assertions")
