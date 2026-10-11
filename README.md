@@ -9,6 +9,7 @@ The app drives an embedded arm64 adb client against the headset's own wireless d
 - The kernel exploit can crash or hang the headset; if it hangs, hold power to restart it.
 - The exploit sets SELinux permissive and clears `panic_on_oops` for the current boot only.
 - Root is re-obtained once per boot and never persists; a restart clears it.
+- Uninstalling the app does not remove root: kernel-memory root stays active until the next restart.
 - One attempt per boot; after a partial failure, rearm manually.
 - Unattended boot re-root runs with nobody watching the screen.
 - Nothing is flashed, no partition is written, the bootloader stays locked.
@@ -51,7 +52,7 @@ The grant survives reboots; only uninstall, a signer change, or **Remove root** 
 
 ## Remove root / uninstall
 
-**Remove root** reverses what this app set up: it disables re-root-after-restart, deletes the staged files in `/data/local/tmp/gxr-root` and the daemon socket, clears its payload copies, reverts its `Settings.Global` writes (`adb_wifi_enabled`, `adb_allowed_connection_time`) and tries to drop its `WRITE_SECURE_SETTINGS` grant. It never kills running processes: kernel-memory root and the `gxr-rootd` daemon end at the next restart (SELinux returns to Enforcing then). `/data/local/tmp` is not cleared by stock Android — without this cleanup the staged files stay there.
+**Remove root** reverses what this app set up: it disables re-root-after-restart, deletes the staged files in `/data/local/tmp/gxr-root` and the daemon socket, clears its payload copies, reverts its `Settings.Global` writes (`adb_wifi_enabled`, `adb_allowed_connection_time`) and tries to drop its `WRITE_SECURE_SETTINGS` grant. It never kills running processes: kernel-memory root and the `gxr-rootd` daemon end at the next restart (SELinux returns to Enforcing then). `/data/local/tmp` is not cleared by stock Android — without this cleanup the staged files stay there. Root itself is kernel memory, not app data: even after uninstalling, it stays active until the headset restarts; the restart removes it.
 
 **Uninstall this app** runs Remove root first, then hands over to Android's uninstall dialog; if cleanup cannot reach the shell it asks again before uninstalling. Uninstalling from Settings instead skips all of it.
 

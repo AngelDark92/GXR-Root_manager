@@ -11,6 +11,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.InputType;
 import android.view.MotionEvent;
 import android.view.View;
@@ -61,6 +62,9 @@ public final class MainActivity extends Activity {
     private RootEngine engine;
     private LinearLayout page;
     private LinearLayout logCard;
+    private ScrollView pageScroll;
+    private ScrollView logScroll;
+    private LinearLayout logLines;
     private TextView logPlaceholder;
     private TextView statusView;
     private TextView statusDetail;
@@ -68,6 +72,8 @@ public final class MainActivity extends Activity {
     private Button rootButton;
     private Button verifyButton;
     private boolean busy;
+    private boolean pendingRootOutcome;
+    private boolean pairing;
     private boolean autoBootAccepted;
     private boolean autoBootRevert;
     private static boolean autoChecked;
@@ -117,17 +123,28 @@ public final class MainActivity extends Activity {
             showKernelSuRequired();
             return;
         }
+        if (!PortDiscovery.wirelessEnabled(this)) {
+            appendLog("[!] wireless debugging appears OFF");
+            danger("Wireless debugging appears off",
+                    "Root reaches the headset through its own Wireless debugging. Turn it on: "
+                            + "Settings > Developer options > Wireless debugging. Then come back here "
+                            + "and press Root now again.",
+                    "Open Developer options", this::openDeveloperOptions);
+            return;
+        }
         if (engine.pairCode().isEmpty()) {
             appendLog("[!] pairing code missing");
             danger("Pairing code required",
                     "Pairing is required on this build. On the headset open Developer options > Wireless "
-                            + "debugging > Pair device with pairing code, then set the code and port in the "
-                            + "Pairing card and press Pair now.",
-                    "Got it", null);
+                            + "debugging > Pair device with pairing code, then type the 6-digit code shown "
+                            + "there into the Pairing card below and press Pair now.",
+                    "Open Developer options", this::openDeveloperOptions);
             return;
         }
         setBusy(true);
         appendLog("[*] supervised root attempt for this boot");
+        scrollToLog();
+        pendingRootOutcome = true;
         engine.runRoot(line -> appendLog(line), () -> runOnUiThread(this::verify));
     }
 
@@ -139,6 +156,11 @@ public final class MainActivity extends Activity {
                 if (isDestroyed()) return;
                 if (ports.isEmpty()) {
                     appendLog("[!] no pairing port advertised; is the pairing dialog open?");
+                    danger("Pairing port not found",
+                            "No pairing port was advertised. Open Developer options > Wireless debugging "
+                                    + "> Pair device with pairing code and keep that dialog open, then "
+                                    + "press Find port again. The pairing port is not the connect port.",
+                            "Got it", null);
                     return;
                 }
                 int port = ports.get(0);
@@ -163,13 +185,31 @@ public final class MainActivity extends Activity {
     }
 
     private void pairNow(EditText pairCode, EditText pairPort) {
+        if (pairing) return;
+        pairing = true;
         savePairing(pairCode, pairPort);
+        if (!PortDiscovery.wirelessEnabled(this)) {
+            appendLog("[!] wireless debugging appears OFF");
+            danger("Wireless debugging appears off",
+                    "Pairing reaches the headset through its own Wireless debugging. Turn it on: "
+                            + "Settings > Developer options > Wireless debugging. Then come back here "
+                            + "and press Pair now again.",
+                    "Open Developer options", this::openDeveloperOptions);
+            pairing = false;
+            return;
+        }
         String code = engine.pairCode();
         if (code.isEmpty()) {
             appendLog("[!] enter the pairing code first");
+            danger("Pairing code missing",
+                    "Type the 6-digit code from the headset's Pair device with pairing code dialog into "
+                            + "the Pairing card, then press Pair now.",
+                    "Got it", null);
+            pairing = false;
             return;
         }
         appendLog("[*] pairing");
+        scrollToLog();
         worker.execute(() -> {
             try {
                 int port = engine.pairPort();
@@ -177,6 +217,16 @@ public final class MainActivity extends Activity {
                     List<Integer> ports = PortDiscovery.discoverPairingPorts(this, 10000, this::appendLog);
                     if (ports.isEmpty()) {
                         appendLog("[!] no pairing port advertised; is the pairing dialog open?");
+                        runOnUiThread(() -> {
+                            if (isDestroyed()) return;
+                            pairing = false;
+                            danger("Pairing port not found",
+                                    "No pairing port was advertised. Open Developer options > Wireless "
+                                            + "debugging > Pair device with pairing code and keep that "
+                                            + "dialog open, then press Find port again. The pairing "
+                                            + "port is not the connect port.",
+                                    "Got it", null);
+                        });
                         return;
                     }
                     port = ports.get(0);
@@ -186,8 +236,37 @@ public final class MainActivity extends Activity {
                 }
                 String output = engine.pair("localhost", port, code);
                 appendLog("    " + output.replace("\n", " "));
+                String lower = output.toLowerCase();
+                boolean paired = lower.contains("successfully paired") || lower.contains("already paired");
+                int pairedPort = port;
+                String report = output.replace("\n", " ").trim();
+                runOnUiThread(() -> {
+                    if (isDestroyed()) return;
+                    pairing = false;
+                    if (paired) {
+                        danger("Pairing succeeded",
+                                "Paired with the headset on port " + pairedPort + ". You can press Root now.",
+                                "Got it", null);
+                    } else {
+                        danger("Pairing failed",
+                                "The headset refused pairing on port " + pairedPort + ": " + report
+                                        + "\nA wrong code or a stale port is the usual cause. Re-open "
+                                        + "Pair device with pairing code, press Find port, then Pair now.",
+                                "Got it", null);
+                    }
+                });
             } catch (Exception failure) {
                 appendLog("[!] pair failed: " + failure.getMessage());
+                String message = failure.getMessage() == null ? failure.toString() : failure.getMessage();
+                runOnUiThread(() -> {
+                    if (isDestroyed()) return;
+                    pairing = false;
+                    danger("Pairing failed",
+                            "Pairing could not run: " + message + "\nOpen Developer options > Wireless "
+                                    + "debugging > Pair device with pairing code, then press Find port "
+                                    + "and Pair now.",
+                            "Got it", null);
+                });
             }
         });
     }
@@ -212,8 +291,43 @@ public final class MainActivity extends Activity {
                 applyResult(finalResult);
                 if (!finalOutput.isEmpty()) appendLog(finalOutput.replace("\n", " "));
                 setBusy(false);
+                if (pendingRootOutcome) {
+                    pendingRootOutcome = false;
+                    showRootOutcome(finalResult);
+                }
             });
         });
+    }
+
+    /** The end-of-run verdict dialog; only shown for a supervised run, never for Verify root alone. */
+    private void showRootOutcome(JSONObject result) {
+        String state = result == null ? "" : result.optString("state");
+        String reason = result == null ? "" : result.optString("reason");
+        if ("verified_root".equals(state)) {
+            boolean ksuLoaded = result != null && result.optBoolean("ksu_loaded");
+            danger("Root succeeded",
+                    "Root is active for this boot" + (ksuLoaded ? " through KernelSU." : " through the ghost daemon.")
+                            + "\nThe attempt latch stays spent until you restart or rearm.\nNothing was flashed.",
+                    "Got it", null);
+            return;
+        }
+        if ("timeout".equals(engine.status().optString("last_outcome"))) {
+            danger("Root run did not finish",
+                    "The exploit did not finish within the deadline. It was not killed. If the headset "
+                            + "hangs, hold power to restart it.\nRoot is not verified yet — press Verify "
+                            + "root, or restart for a fresh attempt.",
+                    "Got it", null);
+            return;
+        }
+        danger("Root not verified",
+                (reason.isEmpty() ? "The run did not confirm root." : reason)
+                        + "\n\nCheck the log for the failing step.\n"
+                        + "- Wireless debugging must be on; the pairing code and ports live in the Pairing "
+                        + "card (a wrong saved port is a common cause — fix via Find port or the Advanced "
+                        + "card).\n"
+                        + "- An unavailable check never means the device has no root.\n"
+                        + "After fixing, press Rearm or restart for a fresh attempt — one attempt per boot.",
+                "Got it", null);
     }
 
     private void applyResult(JSONObject result) {
@@ -319,14 +433,14 @@ public final class MainActivity extends Activity {
     // ---------- page ----------
 
     private void showPage() {
-        ScrollView scroll = new ScrollView(this);
-        scroll.setFillViewport(true);
-        scroll.setBackgroundColor(BACKGROUND);
+        pageScroll = new ScrollView(this);
+        pageScroll.setFillViewport(true);
+        pageScroll.setBackgroundColor(BACKGROUND);
         page = new LinearLayout(this);
         page.setOrientation(LinearLayout.VERTICAL);
         page.setPadding(dp(24), dp(24), dp(24), dp(32));
-        scroll.addView(page, new ScrollView.LayoutParams(-1, -2));
-        setContentView(scroll);
+        pageScroll.addView(page, new ScrollView.LayoutParams(-1, -2));
+        setContentView(pageScroll);
 
         text(page, "GALAXY XR", 14, ACCENT, true);
         text(page, "Root Manager", 30, INK, true);
@@ -420,7 +534,12 @@ public final class MainActivity extends Activity {
         pairing.addView(pairActions, new LinearLayout.LayoutParams(-1, -2));
 
         logCard = card("Log");
-        logPlaceholder = text(logCard, "No run yet.", 13, MUTED, false);
+        logScroll = new ScrollView(this);
+        logLines = new LinearLayout(this);
+        logLines.setOrientation(LinearLayout.VERTICAL);
+        logScroll.addView(logLines, new ScrollView.LayoutParams(-1, -2));
+        logCard.addView(logScroll, new LinearLayout.LayoutParams(-1, dp(240)));
+        logPlaceholder = text(logLines, "No run yet.", 13, MUTED, false);
 
         LinearLayout advanced = card("Advanced");
         EditText manualPort = new EditText(this);
@@ -445,13 +564,14 @@ public final class MainActivity extends Activity {
 
         LinearLayout removal = card("Remove");
         text(removal, "Remove root first: uninstalling alone leaves the payload files in /data/local/tmp "
-                + "and keeps this app's root-related settings. Kernel-memory root clears only on a "
-                + "restart.", 14, MUTED, false);
+                + "and keeps this app's root-related settings. Root itself lives in kernel memory: it "
+                + "stays active until the next restart, uninstall or not.", 14, MUTED, false);
         gatedButtons.add(button(removal, "Remove root", true, ignored -> confirmRemoveRoot()));
         gatedButtons.add(button(removal, "Uninstall this app", false, ignored -> danger("Uninstall Root Manager?",
                 "Android removes the app and its files. This app first removes its root traces "
                         + "(boot re-root setting, staged files in /data/local/tmp, wireless-debugging "
-                        + "setting). Kernel-memory root clears only on a restart.",
+                        + "setting).\nRoot is not app data: it stays active after uninstalling and is "
+                        + "removed by the next restart.",
                 "Remove root, then uninstall", this::removeThenUninstall)));
 
         showStoredStatus();
@@ -532,14 +652,29 @@ public final class MainActivity extends Activity {
     private void appendLog(String line) {
         if (line == null || line.trim().isEmpty()) return;
         runOnUiThread(() -> {
-            if (logCard == null) return;
+            if (logLines == null) return;
             if (logPlaceholder != null) {
-                logCard.removeView(logPlaceholder);
+                logLines.removeView(logPlaceholder);
                 logPlaceholder = null;
             }
-            text(logCard, line, 13, line.startsWith("[+]") ? ACCENT : MUTED, false);
-            while (logCard.getChildCount() > LOG_LIMIT + 1) logCard.removeViewAt(1);
+            text(logLines, line, 13, line.startsWith("[+]") ? ACCENT : MUTED, false);
+            while (logLines.getChildCount() > LOG_LIMIT) logLines.removeViewAt(0);
+            if (logScroll != null) logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
         });
+    }
+
+    /** Brings the log card into view when a run starts, so its output is never off-screen. */
+    private void scrollToLog() {
+        if (pageScroll == null || logCard == null) return;
+        pageScroll.post(() -> pageScroll.smoothScrollTo(0, Math.max(0, logCard.getTop() - dp(12))));
+    }
+
+    private void openDeveloperOptions() {
+        try {
+            startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS));
+        } catch (Throwable failure) {
+            appendLog("[!] cannot open Developer options: " + failure);
+        }
     }
 
     private void danger(String title, String message, String confirm, Runnable action) {
