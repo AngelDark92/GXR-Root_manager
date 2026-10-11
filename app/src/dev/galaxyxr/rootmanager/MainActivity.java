@@ -2,6 +2,8 @@ package dev.galaxyxr.rootmanager;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -19,6 +21,7 @@ import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -45,7 +48,7 @@ public final class MainActivity extends Activity {
     private static final int MUTED = Color.rgb(167, 185, 198);
     private static final int ACCENT = Color.rgb(109, 228, 193);
     private static final int WARN = Color.rgb(240, 173, 78);
-    private static final int LOG_LIMIT = 200;
+    private static final int LOG_LIMIT = 300;
     /**
      * KernelSU-Next manager. Root here is kernel-memory only, so its manager is what keeps `su`
      * usable after every restart; this app refuses to root until the manager app is installed.
@@ -70,6 +73,25 @@ public final class MainActivity extends Activity {
     private ScrollView logScroll;
     private TextView logTextView;
     private final List<String> logBuffer = new java.util.ArrayList<>();
+    private boolean logFollowArmed;
+    /**
+     * Fires once after the new log text has been laid out, so the scroll below can never run
+     * against a stale measured height. Not a focus op: the page around the log stays put.
+     */
+    private final ViewTreeObserver.OnGlobalLayoutListener logFollowListener =
+            new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    logFollowArmed = false;
+                    if (logTextView != null) {
+                        logTextView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    }
+                    if (logScroll != null) {
+                        // ScrollView clamps the overshoot to the exact bottom.
+                        logScroll.scrollTo(0, Integer.MAX_VALUE);
+                    }
+                }
+            };
     private TextView statusView;
     private TextView statusDetail;
     private TextView ksuView;
@@ -594,12 +616,20 @@ public final class MainActivity extends Activity {
         logTextView = new TextView(this);
         logTextView.setTextSize(13);
         logTextView.setTextColor(MUTED);
-        logTextView.setTextIsSelectable(true);
         logTextView.setPadding(0, dp(4), 0, dp(8));
+        /* Read-only box, deliberately NOT focusable and NOT selectable: on XR a selectable
+         * TextView turns drags on it into text-selection gestures (the log then refuses to
+         * scroll) and lets the focused child pull the page back to itself. Copy log covers
+         * copying. */
+        logTextView.setFocusable(false);
+        logTextView.setFocusableInTouchMode(false);
+        logTextView.setClickable(false);
+        logTextView.setLongClickable(false);
         logTextView.setText("No run yet.");
         logScroll.addView(logTextView, new ScrollView.LayoutParams(-1, -2));
         logScroll.setFillViewport(true);
         logCard.addView(logScroll, new LinearLayout.LayoutParams(-1, dp(240)));
+        button(logCard, "Copy log", true, ignored -> copyLog());
 
         LinearLayout advanced = card("Advanced");
         EditText manualPort = new EditText(this);
@@ -699,7 +729,6 @@ public final class MainActivity extends Activity {
         if (line == null || line.trim().isEmpty()) return;
         runOnUiThread(() -> {
             if (logTextView == null) return;
-            boolean follow = atLogBottom();
             logBuffer.add(line);
             while (logBuffer.size() > LOG_LIMIT) logBuffer.remove(0);
             SpannableStringBuilder text = new SpannableStringBuilder();
@@ -709,28 +738,33 @@ public final class MainActivity extends Activity {
                 text.setSpan(new ForegroundColorSpan(entry.startsWith("[+]") ? ACCENT : MUTED),
                         start, start + entry.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
+            /* Always glue the log to its newest line; the one-shot layout listener scrolls
+             * after the new text is measured, so the box is never a line short. */
+            if (!logFollowArmed) {
+                logFollowArmed = true;
+                logTextView.getViewTreeObserver().addOnGlobalLayoutListener(logFollowListener);
+            }
             logTextView.setText(text);
-            if (follow) logScroll.post(() -> {
-                int viewport = logScroll.getHeight() - logScroll.getPaddingTop() - logScroll.getPaddingBottom();
-                int target = Math.max(0, logTextView.getHeight() - viewport + logTextView.getPaddingBottom());
-                logScroll.scrollTo(0, target);
-            });
         });
+    }
+
+    /** Copies the whole retained log (up to LOG_LIMIT lines) to the clipboard. */
+    private void copyLog() {
+        if (isDestroyed()) return;
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        if (clipboard == null) {
+            appendLog("[!] clipboard unavailable");
+            return;
+        }
+        clipboard.setPrimaryClip(
+                ClipData.newPlainText("Galaxy XR Root Manager log", String.join("\n", logBuffer)));
+        appendLog("[*] log copied to clipboard (" + logBuffer.size() + " lines)");
     }
 
     /** Brings the log card into view when a run starts, so its output is never off-screen. */
     private void scrollToLog() {
         if (pageScroll == null || logCard == null) return;
         pageScroll.post(() -> pageScroll.smoothScrollTo(0, Math.max(0, logCard.getTop() - dp(12))));
-    }
-
-    /** True when the log box shows its newest line (or cannot scroll). */
-    private boolean atLogBottom() {
-        if (logScroll == null || logTextView == null) return true;
-        int viewport = logScroll.getHeight() - logScroll.getPaddingTop() - logScroll.getPaddingBottom();
-        int content = logScroll.getChildAt(0) == null ? 0 : logScroll.getChildAt(0).getHeight();
-        int gap = content - viewport - logScroll.getScrollY();
-        return gap <= dp(24);
     }
 
     private void openDeveloperOptions() {
