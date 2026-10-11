@@ -625,6 +625,9 @@ public final class MainActivity extends Activity {
         logTextView.setFocusableInTouchMode(false);
         logTextView.setClickable(false);
         logTextView.setLongClickable(false);
+        /* Same autofill-walk crash guard as the labels: this one is multi-line by design
+         * and is exactly what the framework crash needs. */
+        logTextView.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
         logTextView.setText("No run yet.");
         logScroll.addView(logTextView, new ScrollView.LayoutParams(-1, -2));
         logScroll.setFillViewport(true);
@@ -867,6 +870,11 @@ public final class MainActivity extends Activity {
         view.setTextSize(size);
         if (bold) view.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
         view.setTextIsSelectable(true);
+        /* Labels are no autofill targets, and TextView is important for autofill by default.
+         * A multi-line TextView in the autofill/assist walk crashes this build:
+         * TextView.onProvideAutofillStructure -> StaticLayout.getLineStart
+         * ArrayIndexOutOfBoundsException. Keep every label out of that walk. */
+        view.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
         view.setPadding(0, dp(4), 0, dp(8));
         parent.addView(view, new LinearLayout.LayoutParams(-1, -2));
         return view;
