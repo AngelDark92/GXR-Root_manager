@@ -11,7 +11,7 @@ The app drives an embedded arm64 adb client against the headset's own wireless d
 - Root is re-obtained once per boot and never persists; a restart clears it.
 - Uninstalling the app does not remove root: kernel-memory root stays active until the next restart.
 - One attempt per boot; after a partial failure, rearm manually.
-- Unattended boot re-root runs with nobody watching the screen.
+- Unattended boot re-root runs with nobody watching the screen (off by default — enable it with an accepted tap; it is skipped automatically while the KernelSU-Next manager is missing).
 - Nothing is flashed, no partition is written, the bootloader stays locked.
 - No warranty. The owner accepts the risk.
 
@@ -38,7 +38,7 @@ soon as the manager is detected.
 2. It checks the exact fingerprint, reads the boot id, latches **one attempt per boot**, stages `gxr-exploit` and `gxr-rootd` into `/data/local/tmp/gxr-root`, and runs the exploit in shell context (~1 minute).
 3. It verifies root through the daemon (`gxr-rootd -c id` → `uid=0(root)`).
 
-`RootService` (optional, started by `BootReceiver` on `BOOT_COMPLETED`/`LOCKED_BOOT_COMPLETED`) repeats steps 1–3 after each restart. It needs a one-time grant, because `settings`/`pm` are unreachable from the root daemon's own context:
+`RootService` (optional, started by `BootReceiver` on `BOOT_COMPLETED`/`MY_PACKAGE_REPLACED`) repeats steps 1–3 after each restart. It needs a one-time grant, because `settings`/`pm` are unreachable from the root daemon's own context:
 
 ```
 adb shell pm grant dev.galaxyxr.rootmanager android.permission.WRITE_SECURE_SETTINGS
@@ -48,13 +48,13 @@ The grant survives reboots; only uninstall, a signer change, or **Remove root** 
 
 ## Verify root semantics
 
-`Verify root` runs in the **uid 2000 shell** context, which is the only context the daemon authorizes (it allowlists its initiating UID). Results: `verified_root`, `not_authorized`, `not_rooted`, `unreachable`. A missing or unreachable daemon means **root cannot be verified — never that the device has no root**. The app-process path (`NativeDiagnostics` → native verifier) can only ever report "manager access denied" from the app's own UID.
+`Verify root` first tries KernelSU `su` **directly from this app's process** — once **Root Manager** is granted in the KernelSU-Next manager (Apps tab) this needs no wireless debugging at all. Without that grant it falls back to the **uid 2000 shell** context, which is the only context the root daemon authorizes (it allowlists its initiating UID). Results: `verified_root` (channel `kernelsu_su`, `kernelsu`, or daemon), `ksu_denied`, `ksu_stale`, `not_authorized`, `not_rooted`, `unreachable`. A missing or unreachable check means **root cannot be verified — never that the device has no root**.
 
-## Remove root / uninstall
+## Remove root
 
-**Remove root** reverses what this app set up: it disables re-root-after-restart, deletes the staged files in `/data/local/tmp/gxr-root` and the daemon socket, clears its payload copies, reverts its `Settings.Global` writes (`adb_wifi_enabled`, `adb_allowed_connection_time`) and tries to drop its `WRITE_SECURE_SETTINGS` grant. It never kills running processes: kernel-memory root and the `gxr-rootd` daemon end at the next restart (SELinux returns to Enforcing then). `/data/local/tmp` is not cleared by stock Android — without this cleanup the staged files stay there. Root itself is kernel memory, not app data: even after uninstalling, it stays active until the headset restarts; the restart removes it.
+**Remove root** reverses what this app set up: it disables re-root-after-restart, deletes the staged files in `/data/local/tmp/gxr-root` and the daemon socket, clears its payload copies, reverts its `Settings.Global` writes (`adb_wifi_enabled`, `adb_allowed_connection_time`) and tries to drop its `WRITE_SECURE_SETTINGS` grant. It never kills running processes: kernel-memory root and the `gxr-rootd` daemon end at the next restart (SELinux returns to Enforcing then). `/data/local/tmp` is not cleared by stock Android — without this cleanup the staged files stay there. Root itself is kernel memory, not app data: it stays active until the headset restarts; the restart removes it. **After a removal the app locks `Root now` and `Re-root after every restart` until that restart** — the kernel still holds this boot's root, so there is nothing sensible left to run.
 
-**Uninstall this app** runs Remove root first, then hands over to Android's uninstall dialog; if cleanup cannot reach the shell it asks again before uninstalling. Uninstalling from Settings instead skips all of it.
+Uninstalling from Settings skips all of this cleanup — the app offers no uninstall shortcut.
 
 Never touched, even on removal: KernelSU-Next's own state under `/data/adb` (including `/data/adb/ksu/.allowlist` — it survives reboots; remove it with the KernelSU-Next manager, not from here) and the wireless-debugging pairing entry (forget the paired device in Developer options > Wireless debugging). `persist.adb.tls_server.enable`, if set on this device, was not written by this app; it makes the wireless-debugging toggle return after restarts, and clearing it needs root.
 

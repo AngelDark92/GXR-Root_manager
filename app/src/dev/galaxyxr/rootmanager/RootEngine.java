@@ -188,6 +188,17 @@ public final class RootEngine {
         return id.trim();
     }
 
+    /** Live boot id read on-device; empty when unreadable. */
+    private String localBootId() {
+        try {
+            byte[] raw = java.nio.file.Files.readAllBytes(
+                    java.nio.file.Paths.get("/proc/sys/kernel/random/boot_id"));
+            return new String(raw, java.nio.charset.StandardCharsets.UTF_8).trim();
+        } catch (Throwable failure) {
+            return "";
+        }
+    }
+
     /** Opens a persistent interactive shell for the run; returns its writer. */
     private Process openShell() throws Exception {
         List<String> command = new ArrayList<>();
@@ -283,6 +294,10 @@ public final class RootEngine {
     }
 
     private void runRootInternal(Log log) throws Exception {
+        String removedBoot = prefs.getString("removed_boot", "");
+        if (!removedBoot.isEmpty() && removedBoot.equals(localBootId())) {
+            throw new IOException("root was removed this boot; restart the headset to try again");
+        }
         cancelled = false;
 
         log.line("[*] starting local adb server");
@@ -433,7 +448,7 @@ public final class RootEngine {
         long deadline = System.currentTimeMillis() + RUN_DEADLINE_MS;
         try {
             OutputStream stdin = runProcess.getOutputStream();
-            stdin.write(("EXPLOIT_ATTEMPTS=1 EXPLOIT_ATTEMPTS_TIMEOUT_SEC=600 "
+            stdin.write(("EXPLOIT_ATTEMPTS=1 EXPLOIT_ATTEMPT_TIMEOUT_SEC=180 "
                 + "LD_PRELOAD=" + REMOTE_DIR + "/" + PAYLOAD_EXPLOIT + " /system/bin/true; echo __GXR_RUN_DONE__$?\n")
                 .getBytes(StandardCharsets.UTF_8));
             stdin.flush();
@@ -488,6 +503,10 @@ public final class RootEngine {
      */
     private void loadKernelSu(Log log) {
         log.line("[*] late-loading KernelSU");
+        if (!ksuManagerInstalled()) {
+            log.line("[!] KernelSU manager (com.rifsxd.ksunext) is not installed; the module is not loaded");
+            return;
+        }
         try {
             String load = shellCommand(
                 REMOTE_DIR + "/" + PAYLOAD_DAEMON + " -c \"insmod " + REMOTE_DIR + "/" + PAYLOAD_KSU
@@ -510,6 +529,20 @@ public final class RootEngine {
             log.line("[+] KernelSU loaded: su for allowed apps and for shell (allow_shell=1)");
         } catch (Exception e) {
             log.line("[!] KernelSU check failed: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Lowest-level fail-safe: the driver owns root from the moment it loads, so it must
+     * never be loaded while its manager app is absent (owner requirement). The UI and the
+     * boot flow gate too; this is the last line of defense.
+     */
+    private boolean ksuManagerInstalled() {
+        try {
+            context.getPackageManager().getPackageInfo("com.rifsxd.ksunext", 0);
+            return true;
+        } catch (Throwable missing) {
+            return false;
         }
     }
 
@@ -604,6 +637,8 @@ public final class RootEngine {
                 }
                 return out;
             }
+
+            prefs.edit().putString("removed_boot", localBootId()).commit();
 
             try {
                 RootService.setAutoBoot(context, false);
@@ -750,6 +785,10 @@ public final class RootEngine {
     public JSONObject verifyRoot() {
         JSONObject out = new JSONObject();
         try {
+            /* Direct su from this app's own process first: once Root Manager is granted in
+             * the KernelSU-Next manager this check needs no wireless debugging at all. */
+            JSONObject direct = verifyRootViaDirectSu();
+            if ("verified_root".equals(direct.optString("state"))) return direct;
             if (adbSerial == null || adbSerial.isEmpty()) {
                 String connected = "";
                 try {
@@ -770,7 +809,10 @@ public final class RootEngine {
                 }
                 if (adbSerial == null || adbSerial.isEmpty()) {
                     out.put("state", "unreachable");
-                    out.put("reason", "Not connected to the headset, so root cannot be checked right now.");
+                    out.put("reason", "Root could not be checked: wireless debugging is off or "
+                            + "unreachable, and this app has no KernelSU grant yet. Grant Root "
+                            + "Manager in the KernelSU-Next manager, or turn Wireless debugging on. "
+                            + "An unavailable check never means the device has no root.");
                     out.put("output", connected);
                     return out;
                 }
@@ -920,6 +962,81 @@ public final class RootEngine {
         }
     }
 
+    /**
+     * KernelSU su launched from this app's own process: needs no wireless debugging.
+     * Works once Root Manager is granted in the KernelSU-Next manager; a missing
+     * grant or binary is denied fast and the caller falls back to the adb paths.
+     */
+    private JSONObject verifyRootViaDirectSu() {
+        JSONObject out = new JSONObject();
+        String output = "";
+        try {
+            Process process;
+            try {
+                process = new ProcessBuilder("su", "-c", "id; cat /proc/sys/kernel/random/boot_id")
+                        .redirectErrorStream(true).start();
+            } catch (IOException missing) {
+                process = new ProcessBuilder("/system/bin/su", "-c",
+                        "id; cat /proc/sys/kernel/random/boot_id").redirectErrorStream(true).start();
+            }
+            try {
+                output = readFor(process, 10000).trim();
+            } finally {
+                process.destroy();
+            }
+            if (output.contains("uid=0(root)")) {
+                String bootId = localBootId();
+                if (bootId.isEmpty() || !output.contains(bootId)) {
+                    out.put("state", "ksu_stale");
+                    out.put("reason", "KernelSU su answered for a different boot; check again.");
+                    out.put("output", output);
+                    return out;
+                }
+                out.put("state", "verified_root");
+                out.put("reason", "Root is active for this boot through KernelSU su.");
+                out.put("channel", "kernelsu_su");
+                out.put("ksu_loaded", true);
+                out.put("output", output);
+                return out;
+            }
+        } catch (Throwable failure) {
+            output = failure.getClass().getSimpleName()
+                    + (failure.getMessage() == null ? "" : ": " + failure.getMessage());
+        }
+        try {
+            out.put("state", "unreachable");
+            out.put("output", output);
+        } catch (Exception ignored) {
+        }
+        return out;
+    }
+
+    /** Reads combined output until the process exits or the deadline passes; bounded, never hangs. */
+    private static String readFor(Process process, long timeoutMs) throws IOException, InterruptedException {
+        StringBuilder out = new StringBuilder();
+        InputStream stdout = process.getInputStream();
+        byte[] buffer = new byte[4096];
+        long deadline = System.currentTimeMillis() + timeoutMs;
+        while (System.currentTimeMillis() < deadline) {
+            int n;
+            boolean progressed = false;
+            while (stdout.available() > 0 && (n = stdout.read(buffer)) > 0) {
+                out.append(new String(buffer, 0, n, StandardCharsets.UTF_8));
+                progressed = true;
+            }
+            try {
+                process.exitValue();
+                while (stdout.available() > 0 && (n = stdout.read(buffer)) > 0) {
+                    out.append(new String(buffer, 0, n, StandardCharsets.UTF_8));
+                }
+                return out.toString();
+            } catch (IllegalThreadStateException stillRunning) {
+                if (!progressed) Thread.sleep(100);
+            }
+        }
+        return out.toString();
+    }
+
     public JSONObject status() {
         JSONObject out = new JSONObject();
         try {
@@ -927,6 +1044,7 @@ public final class RootEngine {
             out.put("attempt_boot", prefs.getString("attempt_boot", ""));
             out.put("attempt_ever", prefs.getBoolean("attempt_ever", false));
             out.put("last_outcome", prefs.getString("last_outcome", ""));
+            out.put("root_removed_this_boot", !localBootId().isEmpty() && localBootId().equals(prefs.getString("removed_boot", "")));
             out.put("model", Build.MODEL);
             out.put("fingerprint", Build.FINGERPRINT);
             out.put("payload_exploit_ok", new File(context.getFilesDir(), "payload/" + PAYLOAD_EXPLOIT).isFile());

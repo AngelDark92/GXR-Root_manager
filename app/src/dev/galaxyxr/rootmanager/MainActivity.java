@@ -2,6 +2,7 @@ package dev.galaxyxr.rootmanager;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -74,6 +75,8 @@ public final class MainActivity extends Activity {
     private TextView ksuView;
     private Button rootButton;
     private Button verifyButton;
+    private Button removeButton;
+    private CheckBox autoBootBox;
     private boolean busy;
     private boolean pendingRootOutcome;
     private boolean pairing;
@@ -104,6 +107,7 @@ public final class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         showStoredStatus();
+        applyRemovalGates();
         if (!autoChecked && !busy) {
             autoChecked = true;
             verify();
@@ -121,9 +125,33 @@ public final class MainActivity extends Activity {
 
     private void startRoot() {
         if (busy) return;
+        if (rootRemovedThisBoot()) {
+            appendLog("[!] root was removed this boot; restart to continue");
+            danger("Root was removed this boot",
+                    "The kernel still holds this boot's root until a restart, and the removal finishes "
+                            + "there. Restart the headset, then root again.",
+                    "Got it", null);
+            return;
+        }
         if (!ksuManagerInstalled()) {
             appendLog("[!] root locked: KernelSU-Next is not installed");
             showKernelSuRequired();
+            return;
+        }
+        JSONObject latch = engine.status();
+        if (latch.optBoolean("attempt_ever") && !"rooted".equals(latch.optString("last_outcome"))) {
+            appendLog("[!] previous attempt did not verify root; rearm required");
+            danger("Previous attempt did not verify root",
+                    "The last attempt did not confirm root, so the app holds a latch that stops silent "
+                            + "retries.\n\nClear it and try again now? Root is still per-boot and nothing "
+                            + "was flashed.\nIf the headset seems unstable, restart it instead.",
+                    "Rearm and continue",
+                    () -> {
+                        engine.rearm();
+                        appendLog("[*] rearm requested");
+                        showStoredStatus();
+                        startRoot();
+                    });
             return;
         }
         if (engine.pairCode().isEmpty()) {
@@ -136,6 +164,11 @@ public final class MainActivity extends Activity {
                     "Open Developer options", this::openDeveloperOptions);
             return;
         }
+        beginRootRun();
+    }
+
+    /** Starts the supervised run. Only called after every preflight gate has passed. */
+    private void beginRootRun() {
         setBusy(true);
         appendLog("[*] supervised root attempt for this boot");
         scrollToLog();
@@ -420,6 +453,19 @@ public final class MainActivity extends Activity {
         if (rootButton != null) rootButton.setEnabled(!value);
         if (verifyButton != null) verifyButton.setEnabled(!value);
         for (Button button : gatedButtons) button.setEnabled(!value);
+        applyRemovalGates();
+    }
+
+    /** After Remove root the rest of this boot must not offer rooting again. */
+    private boolean rootRemovedThisBoot() {
+        return engine.status().optBoolean("root_removed_this_boot");
+    }
+
+    private void applyRemovalGates() {
+        boolean removed = rootRemovedThisBoot();
+        if (rootButton != null) rootButton.setEnabled(!busy && !removed);
+        if (removeButton != null) removeButton.setEnabled(!busy && !removed);
+        if (autoBootBox != null) autoBootBox.setEnabled(!busy && !removed);
     }
 
     // ---------- page ----------
@@ -454,9 +500,15 @@ public final class MainActivity extends Activity {
         autoBoot.setTextColor(INK);
         autoBoot.setTextSize(15);
         autoBoot.setChecked(RootService.autoBoot(this));
+        autoBootBox = autoBoot;
         autoBoot.setOnCheckedChangeListener((view, checked) -> {
             if (autoBootRevert) {
                 autoBootRevert = false;
+                return;
+            }
+            if (rootRemovedThisBoot()) {
+                autoBootRevert = true;
+                view.setChecked(false);
                 return;
             }
             if (!checked) {
@@ -555,21 +607,21 @@ public final class MainActivity extends Activity {
             engine.rearm();
             appendLog("[*] rearm requested");
             showStoredStatus();
+            danger("Re-armed",
+                    "The failed attempt is cleared. Press Root now to try again. If this boot already spent "
+                            + "its attempt and the headset seems unstable, restart it first.",
+                    "Got it", null);
         }));
 
         LinearLayout removal = card("Remove");
-        text(removal, "Remove root first: uninstalling alone leaves the payload files in /data/local/tmp "
-                + "and keeps this app's root-related settings. Root itself lives in kernel memory: it "
-                + "stays active until the next restart, uninstall or not.", 14, MUTED, false);
-        gatedButtons.add(button(removal, "Remove root", true, ignored -> confirmRemoveRoot()));
-        gatedButtons.add(button(removal, "Uninstall this app", false, ignored -> danger("Uninstall Root Manager?",
-                "Android removes the app and its files. This app first removes its root traces "
-                        + "(boot re-root setting, staged files in /data/local/tmp, wireless-debugging "
-                        + "setting).\nRoot is not app data: it stays active after uninstalling and is "
-                        + "removed by the next restart.",
-                "Remove root, then uninstall", this::removeThenUninstall)));
+        text(removal, "Removes this app's root traces: the staged files in /data/local/tmp, the daemon "
+                + "socket, boot re-root and the wireless-debugging setting. Kernel root stays active "
+                + "until the next restart — nothing can clear kernel memory.", 14, MUTED, false);
+        removeButton = button(removal, "Remove root", true, ignored -> confirmRemoveRoot());
+        gatedButtons.add(removeButton);
 
         showStoredStatus();
+        applyRemovalGates();
     }
 
     private void confirmRoot() {
@@ -604,20 +656,6 @@ public final class MainActivity extends Activity {
                 "Remove root", () -> removeRootFlow(ignored -> { }));
     }
 
-    private void removeThenUninstall() {
-        removeRootFlow(report -> {
-            if (report.optBoolean("complete")) {
-                fireDeleteIntent();
-                return;
-            }
-            String output = report.optString("output");
-            danger("Cleanup could not finish",
-                    (output.isEmpty() ? "" : output + "\n\n")
-                            + "Files in /data/local/tmp stay until a shell removes them. Uninstall anyway?",
-                    "Uninstall anyway", this::fireDeleteIntent);
-        });
-    }
-
     /** Cleanup runs on the worker; its log lines already stream via appendLog, and the
      *  report comes back on the UI thread. */
     private void removeRootFlow(Consumer<JSONObject> onReport) {
@@ -633,13 +671,13 @@ public final class MainActivity extends Activity {
             runOnUiThread(() -> {
                 if (isDestroyed()) return;
                 setBusy(false);
+                if (autoBootBox != null) {
+                    autoBootRevert = true;
+                    autoBootBox.setChecked(false);
+                }
                 onReport.accept(finalReport);
             });
         });
-    }
-
-    private void fireDeleteIntent() {
-        startActivity(new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + getPackageName())));
     }
 
     // ---------- helpers ----------
@@ -648,6 +686,7 @@ public final class MainActivity extends Activity {
         if (line == null || line.trim().isEmpty()) return;
         runOnUiThread(() -> {
             if (logTextView == null) return;
+            boolean follow = atLogBottom();
             logBuffer.add(line);
             while (logBuffer.size() > LOG_LIMIT) logBuffer.remove(0);
             SpannableStringBuilder text = new SpannableStringBuilder();
@@ -658,7 +697,7 @@ public final class MainActivity extends Activity {
                         start, start + entry.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
             logTextView.setText(text);
-            logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
+            if (follow) logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
         });
     }
 
@@ -668,19 +707,72 @@ public final class MainActivity extends Activity {
         pageScroll.post(() -> pageScroll.smoothScrollTo(0, Math.max(0, logCard.getTop() - dp(12))));
     }
 
+    /** True when the log box shows its newest line (or cannot scroll). */
+    private boolean atLogBottom() {
+        if (logScroll == null || logTextView == null) return true;
+        int viewport = logScroll.getHeight() - logScroll.getPaddingTop() - logScroll.getPaddingBottom();
+        int content = logScroll.getChildAt(0) == null ? 0 : logScroll.getChildAt(0).getHeight();
+        int gap = content - viewport - logScroll.getScrollY();
+        return gap <= dp(24);
+    }
+
     private void openDeveloperOptions() {
+        if (!developerOptionsEnabled()) {
+            appendLog("[!] developer options are off; wireless debugging and pairing live under them");
+            danger("Developer options are off",
+                    "Wireless debugging and pairing live under Developer options, and they are "
+                            + "disabled right now.\n\nEnable them first: open Settings > General, "
+                            + "then tap Build number 7 times in About. Developer options then "
+                            + "appears in General.",
+                    "Open General", this::openGeneralSettings);
+            return;
+        }
         try {
             Intent developer = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
-            if (developer.resolveActivity(getPackageManager()) != null) {
+            developer.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            ComponentName resolved = developer.resolveActivity(getPackageManager());
+            /* This XR build answers the action with a stub screen
+             * (DevelopmentSettingsDisabledActivity) while the real developer options
+             * activity is disabled in its manifest. Only launch the intent when it
+             * leads to real developer options. */
+            if (resolved != null && !resolved.getClassName().contains("Disabled")) {
                 startActivity(developer);
                 return;
             }
         } catch (Throwable ignored) {
         }
+        openGeneralSettings();
+    }
+
+    /** Settings > General — the closest exported page to Developer options on this XR build. */
+    private void openGeneralSettings() {
         try {
-            startActivity(new Intent(Settings.ACTION_SETTINGS));
+            Intent general = new Intent();
+            general.setClassName("com.android.settings",
+                    "com.android.settings.Settings$GeneralDeviceSettingsActivity");
+            /* A new task opens its own window on XR, so this app stays visible next to
+             * Settings while pairing code and ports are copied between them. */
+            general.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(general);
+            return;
+        } catch (Throwable failure) {
+            appendLog("[!] cannot open General settings: " + failure.getClass().getSimpleName());
+        }
+        try {
+            Intent settings = new Intent(Settings.ACTION_SETTINGS);
+            settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(settings);
         } catch (Throwable failure) {
             appendLog("[!] cannot open Settings: " + failure);
+        }
+    }
+
+    /** A denied Settings.Global read is treated as enabled so navigation never blocks. */
+    private boolean developerOptionsEnabled() {
+        try {
+            return Settings.Global.getInt(getContentResolver(), "development_settings_enabled", 0) == 1;
+        } catch (Throwable denied) {
+            return true;
         }
     }
 
