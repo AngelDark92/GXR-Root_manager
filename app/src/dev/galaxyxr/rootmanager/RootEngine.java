@@ -313,6 +313,7 @@ public final class RootEngine {
                     + "(Settings > General > Developer options > Wireless debugging)");
         }
         List<Integer> candidates = PortDiscovery.discoverPorts(context, 10000, text -> log.line(text));
+        boolean mdnsEmptyFirstRound = candidates.isEmpty();
         String saved = prefs.getString("connect_port", "");
         if (!saved.isEmpty() && !candidates.contains(Integer.parseInt(saved))) {
             candidates.add(Integer.parseInt(saved));
@@ -342,6 +343,28 @@ public final class RootEngine {
                 pendingSince = System.currentTimeMillis();
                 log.line("    live port with pending approval; watch the headset screen");
                 break;
+            }
+        }
+        if (port < 0 && mdnsEmptyFirstRound) {
+            /* No mDNS advertisement in the first round: with wireless debugging
+             * off the pairing dialog cannot be open either, so do NOT run the
+             * pairing retry path. One bounded re-check (discovery only) covers
+             * a slow mDNS start; then fail fast and clearly. */
+            List<Integer> recheck = PortDiscovery.discoverPorts(context, 10000, text -> log.line(text));
+            if (!recheck.isEmpty()) {
+                for (int candidate : recheck) {
+                    String out = adbOnce(List.of("connect", "localhost:" + candidate), 60000);
+                    log.line("    " + out.replace("\n", " "));
+                    if (out.contains("connected to") || out.contains("already connected")) {
+                        port = candidate;
+                        break;
+                    }
+                }
+            }
+            if (port < 0) {
+                log.line("[!] wireless debugging appears off — turn it on "
+                        + "(Settings > General > Developer options > Wireless debugging), then press Root now again");
+                throw new IOException("wireless debugging appears off; nothing was attempted this boot");
             }
         }
         if (port < 0) {

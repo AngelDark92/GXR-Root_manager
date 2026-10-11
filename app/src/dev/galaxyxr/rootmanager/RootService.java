@@ -37,7 +37,8 @@ public final class RootService extends Service {
     }
 
     static void setAutoBoot(Context context, boolean enabled) {
-        prefs(context).edit().putBoolean(AUTO_BOOT, enabled).apply();
+        /* synchronous: an async write was lost when the app died */
+        prefs(context).edit().putBoolean(AUTO_BOOT, enabled).commit();
     }
 
     private static SharedPreferences prefs(Context context) {
@@ -101,6 +102,20 @@ public final class RootService extends Service {
             enableWirelessDebugging();
         } catch (Throwable ignored) {
         }
+        /* The wireless adb daemon takes ~30-60 s after adb_wifi_enabled=1 before it
+         * advertises over mDNS; the engine's discovery rounds are short, so wait for
+         * the advertisement before any engine work. */
+        long waitDeadline = System.currentTimeMillis() + 120_000L;
+        while (System.currentTimeMillis() < waitDeadline) {
+            try {
+                if (!PortDiscovery.discoverPorts(this, 5000, ignored -> {}).isEmpty()) break;
+            } catch (Throwable ignored) {
+            }
+            try { notifyState("Waiting for wireless debugging…"); } catch (Throwable ignored) {}
+            try { Thread.sleep(10_000L); } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt(); break;
+            }
+        }
         try {
             JSONObject already = engine.verifyRoot();
             if ("verified_root".equals(already.optString("state"))) {
@@ -110,7 +125,7 @@ public final class RootService extends Service {
             }
         } catch (Throwable ignored) {
         }
-        prefs(this).edit().putBoolean("boot_run_open", true).apply();
+        prefs(this).edit().putBoolean("boot_run_open", true).commit();
         engine.runRoot(this::stage, () -> {
             JSONObject check;
             try {
@@ -166,7 +181,7 @@ public final class RootService extends Service {
     private void reconcileBootState() {
         if (prefs(this).getBoolean("boot_run_open", false)) {
             int streak = prefs(this).getInt("boot_streak", 0) + 1;
-            prefs(this).edit().putInt("boot_streak", streak).putBoolean("boot_run_open", false).apply();
+            prefs(this).edit().putInt("boot_streak", streak).putBoolean("boot_run_open", false).commit();
         }
     }
 
@@ -175,6 +190,14 @@ public final class RootService extends Service {
         if (text.startsWith("verifying") || text.startsWith("launching") || text.startsWith("pushing")) {
             NotificationManager manager = getSystemService(NotificationManager.class);
             if (manager != null) manager.notify(NOTIFICATION_ID, notification(text));
+        }
+    }
+
+    private void notifyState(String text) {
+        try {
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            if (manager != null) manager.notify(NOTIFICATION_ID, notification(text));
+        } catch (Throwable ignored) {
         }
     }
 

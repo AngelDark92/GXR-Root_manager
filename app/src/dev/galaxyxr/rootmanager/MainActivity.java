@@ -445,6 +445,7 @@ public final class MainActivity extends Activity {
         statusDetail.setText("Last attempt: " + (outcome.isEmpty() ? "none" : outcome)
                 + " · rearm " + (status.optBoolean("attempt_ever") ? "needed after a failure" : "not needed")
                 + (port.isEmpty() ? "" : " · port " + port)
+                + " · boot re-root " + (RootService.autoBoot(this) ? "on" : "off")
                 + "\nAn unavailable check does not mean the device has no root.");
     }
 
@@ -499,7 +500,9 @@ public final class MainActivity extends Activity {
         autoBoot.setText("Re-root after every restart");
         autoBoot.setTextColor(INK);
         autoBoot.setTextSize(15);
+        autoBootRevert = true;                     // consume the listener for the initial set
         autoBoot.setChecked(RootService.autoBoot(this));
+        autoBootRevert = false;                    // setChecked fires synchronously; safe afterwards
         autoBootBox = autoBoot;
         autoBoot.setOnCheckedChangeListener((view, checked) -> {
             if (autoBootRevert) {
@@ -523,7 +526,11 @@ public final class MainActivity extends Activity {
             } else if (autoBootAccepted) {
                 autoBootAccepted = false;
                 RootService.setAutoBoot(this, true);
-                appendLog("[*] boot re-root enabled");
+                appendLog("[*] boot re-root enabled — applies from the next restart");
+                danger("Boot re-root enabled",
+                        "From the next restart the headset re-roots itself with no one watching the screen. "
+                                + "This boot keeps the root it already has.",
+                        "Got it", null);
             } else {
                 autoBootRevert = true;
                 view.setChecked(false);
@@ -540,7 +547,12 @@ public final class MainActivity extends Activity {
                                 + "- Root is still kernel-memory only and disappears on the next restart.\n"
                                 + "- No warranty. You accept the risk by pressing the button below.",
                         "I accept \u2014 enable",
-                        () -> { autoBootAccepted = true; view.setChecked(true); });
+                        () -> {
+                            RootService.setAutoBoot(this, true);          // the write IS the accept
+                            autoBootAccepted = true;
+                            view.setChecked(true);
+                        },
+                        true);
             }
         });
         root.addView(autoBoot, new LinearLayout.LayoutParams(-1, -2));
@@ -586,6 +598,7 @@ public final class MainActivity extends Activity {
         logTextView.setPadding(0, dp(4), 0, dp(8));
         logTextView.setText("No run yet.");
         logScroll.addView(logTextView, new ScrollView.LayoutParams(-1, -2));
+        logScroll.setFillViewport(true);
         logCard.addView(logScroll, new LinearLayout.LayoutParams(-1, dp(240)));
 
         LinearLayout advanced = card("Advanced");
@@ -697,7 +710,11 @@ public final class MainActivity extends Activity {
                         start, start + entry.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
             logTextView.setText(text);
-            if (follow) logScroll.post(() -> logScroll.fullScroll(View.FOCUS_DOWN));
+            if (follow) logScroll.post(() -> {
+                int viewport = logScroll.getHeight() - logScroll.getPaddingTop() - logScroll.getPaddingBottom();
+                int target = Math.max(0, logTextView.getHeight() - viewport + logTextView.getPaddingBottom());
+                logScroll.scrollTo(0, target);
+            });
         });
     }
 
@@ -777,6 +794,11 @@ public final class MainActivity extends Activity {
     }
 
     private void danger(String title, String message, String confirm, Runnable action) {
+        danger(title, message, confirm, action, false);
+    }
+
+    private void danger(String title, String message, String confirm, Runnable action,
+                        boolean noOutsideCancel) {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(title)
                 .setMessage(message)
@@ -785,6 +807,7 @@ public final class MainActivity extends Activity {
                     if (action != null) action.run();
                 })
                 .show();
+        if (noOutsideCancel) dialog.setCanceledOnTouchOutside(false);
         Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
         positive.setFilterTouchesWhenObscured(true);
         positive.setOnTouchListener((view, event) -> (event.getFlags()
