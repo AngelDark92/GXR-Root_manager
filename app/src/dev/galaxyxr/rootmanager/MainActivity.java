@@ -87,8 +87,12 @@ public final class MainActivity extends Activity {
                         logTextView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                     }
                     if (logScroll != null) {
-                        // ScrollView clamps the overshoot to the exact bottom.
-                        logScroll.scrollTo(0, Integer.MAX_VALUE);
+                        /* Exact bottom, computed after layout. Never scrollTo(0, Integer.MAX_VALUE):
+                         * ScrollView.clamp evaluates `my + n > child` and overflowed to a negative,
+                         * so an oversized y escaped the clamp and parked the content 2^31 px up —
+                         * the box rendered empty as soon as the log outgrew the viewport. */
+                        logScroll.scrollTo(0, Math.max(0,
+                                logTextView.getHeight() - logScroll.getHeight()));
                     }
                 }
             };
