@@ -100,12 +100,13 @@ Artifacts go to `<repository>-builds/build` beside the repository (`GalaxyXR-Roo
 ## Continuous integration
 
 One workflow. `release.yml` (windows-latest) checks that the version sources agree, builds the APK
-with the Android SDK, uploads it plus its receipt as a workflow artifact, and publishes a GitHub
-Release only on `main`, on a matching `v*` tag, or on a workflow dispatch that asked for it —
-everything else is a build-only dry run. The unit suite does not run in CI; it is the local gate:
-`python -B tools/fetch_test_deps.py` then `python -B -m unittest discover -s tests -v`, run before
-any push. Version truth is `VERSION` in `tools/build_root.py`; `fix:` / `feat:` / `rework:` commits
-bump patch / minor / major. Design notes: `docs/GitHub-CI-Notes-2026-10-10.md`.
+against the runner image's Android SDK plus the cached NDK `27.2.12479018`, uploads the APK and its
+receipt as a workflow artifact, and publishes a GitHub Release only on `main`, on a matching `v*`
+tag, or on a workflow dispatch that asked for it — everything else is a build-only dry run. The
+unit suite does not run in CI; it is the local gate, run at the end of every task:
+`python -B tools/fetch_test_deps.py` then `python -B -m unittest discover -s tests -v`. Version
+truth is `VERSION` in `tools/build_root.py`; `fix:` / `feat:` / `rework:` commits bump patch /
+minor / major. Design notes: `docs/GitHub-CI-Notes-2026-10-10.md`.
 
 ## Limits and safety
 

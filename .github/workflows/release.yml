@@ -23,6 +23,8 @@ concurrency:
 env:
   BUILD_TOOLS_VERSION: '35.0.1'
   NDK_VERSION: '27.2.12479018'
+  # Where the windows runner image keeps the Android SDK (its ANDROID_HOME / ANDROID_SDK_ROOT).
+  ANDROID_SDK_ROOT: 'C:\Android\android-sdk'
 
 jobs:
   release:
@@ -39,9 +41,35 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - uses: android-actions/setup-android@v3
+      # The windows runner image already ships the Android SDK (command-line tools, platform 34,
+      # build-tools 35.0.1) with the licences accepted, so the setup-android action is gone: it
+      # re-downloaded its own command-line tools on every run. Only the pinned NDK is missing
+      # from the image; the cache restores it after the first run, and the step below installs
+      # whatever is absent.
+      - name: Restore the pinned Android NDK
+        uses: actions/cache@v4
         with:
-          packages: 'platforms;android-34 build-tools;35.0.1 ndk;27.2.12479018'
+          path: ${{ env.ANDROID_SDK_ROOT }}\ndk\${{ env.NDK_VERSION }}
+          key: android-ndk-${{ runner.os }}-${{ env.NDK_VERSION }}
+
+      - name: Install the missing Android SDK packages
+        shell: pwsh
+        run: |
+          $sdkManager = Join-Path $env:ANDROID_SDK_ROOT 'cmdline-tools\latest\bin\sdkmanager.bat'
+          if (-not (Test-Path $sdkManager)) { throw "Missing sdkmanager: $sdkManager" }
+          $packages = [ordered]@{
+            'platforms;android-34'                 = Join-Path $env:ANDROID_SDK_ROOT 'platforms\android-34\android.jar'
+            "build-tools;$env:BUILD_TOOLS_VERSION" = Join-Path $env:ANDROID_SDK_ROOT "build-tools\$env:BUILD_TOOLS_VERSION\aapt2.exe"
+            "ndk;$env:NDK_VERSION"                 = Join-Path $env:ANDROID_SDK_ROOT "ndk\$env:NDK_VERSION\source.properties"
+          }
+          $missing = @($packages.GetEnumerator() | Where-Object { -not (Test-Path $_.Value) } | ForEach-Object { $_.Key })
+          if ($missing.Count -eq 0) { Write-Host 'Every pinned Android SDK package is present.'; exit 0 }
+          Write-Host "Installing: $($missing -join ', ')"
+          ('y' + [Environment]::NewLine) * 8 | & $sdkManager --licenses | Out-Null
+          foreach ($package in $missing) {
+            & $sdkManager --install $package
+            if ($LASTEXITCODE -ne 0) { throw "sdkmanager failed for $package" }
+          }
 
       - name: Verify the Android SDK layout
         shell: pwsh

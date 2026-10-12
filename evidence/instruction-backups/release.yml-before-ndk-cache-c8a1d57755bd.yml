@@ -1,0 +1,135 @@
+name: release
+
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish a GitHub Release for the source version
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  # A newer push cancels stale dry runs, but a publish on main never gets cancelled.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  BUILD_TOOLS_VERSION: '35.0.1'
+  NDK_VERSION: '27.2.12479018'
+
+jobs:
+  release:
+    # tools/build_root.py binds the windows-x86_64 NDK toolchain; this job cannot run on Linux.
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-34 build-tools;35.0.1 ndk;27.2.12479018'
+
+      - name: Verify the Android SDK layout
+        shell: pwsh
+        run: |
+          foreach ($path in @(
+              "$env:ANDROID_SDK_ROOT\platforms\android-34\android.jar",
+              "$env:ANDROID_SDK_ROOT\build-tools\$env:BUILD_TOOLS_VERSION\aapt2.exe",
+              "$env:ANDROID_SDK_ROOT\build-tools\$env:BUILD_TOOLS_VERSION\lib\apksigner.jar",
+              "$env:ANDROID_SDK_ROOT\ndk\$env:NDK_VERSION\source.properties")) {
+            if (-not (Test-Path $path)) { throw "Missing Android SDK component: $path" }
+          }
+
+      - name: Version sources agree
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            python tools/verify_release_version.py --tag "${GITHUB_REF#refs/tags/}"
+          else
+            python tools/verify_release_version.py
+          fi
+
+      # No test step by design: the unit suite runs locally before a push lands here (see
+      # AGENTS.md), so CI only checks the version sources and builds the release package.
+
+      - name: Release policy
+        id: policy
+        shell: bash
+        env:
+          INPUT_PUBLISH: ${{ inputs.publish }}
+        run: python tools/release_policy.py
+
+      - name: Persist the version bump
+        if: steps.policy.outputs.bump == 'true'
+        shell: bash
+        run: python tools/release_policy.py --persist
+
+      - name: Restore the development keystore
+        # The secret value must be the base64 TEXT of .local/debug.keystore. A secret
+        # whose value is not decodable text makes GitHub fail every run of any workflow
+        # that references it at startup -- no jobs, no logs, just `startup_failure`.
+        shell: bash
+        env:
+          KEYSTORE_B64: ${{ secrets.GXR_DEBUG_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            mkdir -p .local
+            printf '%s' "$KEYSTORE_B64" | base64 -d > .local/debug.keystore
+            echo "Restored the development keystore from GXR_DEBUG_KEYSTORE_BASE64."
+          else
+            echo "No GXR_DEBUG_KEYSTORE_BASE64 secret; the builder will generate an ephemeral key."
+          fi
+
+      - name: Build the APK
+        id: build
+        shell: pwsh
+        run: |
+          python tools/build_root.py `
+            --android-jar "$env:ANDROID_SDK_ROOT\platforms\android-34\android.jar" `
+            --build-tools "$env:ANDROID_SDK_ROOT\build-tools\$env:BUILD_TOOLS_VERSION" `
+            --ndk "$env:ANDROID_SDK_ROOT\ndk\$env:NDK_VERSION"
+          if ($LASTEXITCODE -ne 0) { throw "APK build failed" }
+          $repo = Split-Path (Get-Location) -Leaf
+          $output = Join-Path (Split-Path (Get-Location) -Parent) "$repo-builds\build"
+          $apk = Get-ChildItem -Path $output -Filter *.apk | Select-Object -First 1
+          if (-not $apk) { throw "No APK produced under $output" }
+          "apk=$($apk.FullName)" >> $env:GITHUB_OUTPUT
+          "receipt=$(Join-Path $output 'root-build-receipt.json')" >> $env:GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GalaxyXR-Root-Manager-${{ steps.policy.outputs.tag }}
+          path: |
+            ${{ steps.build.outputs.apk }}
+            ${{ steps.build.outputs.receipt }}
+          retention-days: 30
+
+      - name: Commit the version bump
+        if: steps.policy.outputs.publish == 'true' && steps.policy.outputs.bump == 'true'
+        shell: bash
+        run: python tools/release_policy.py --commit --version "${{ steps.policy.outputs.version }}"
+
+      - name: Publish the release
+        if: steps.policy.outputs.publish == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python tools/publish_release.py \
+            --tag "${{ steps.policy.outputs.tag }}" \
+            --apk "${{ steps.build.outputs.apk }}" \
+            --notes-file CHANGELOG.md
