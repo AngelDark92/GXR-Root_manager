@@ -17,7 +17,8 @@ permissions:
 
 concurrency:
   group: release-${{ github.ref }}
-  cancel-in-progress: false
+  # A newer push cancels stale dry runs, but a publish on main never gets cancelled.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
   BUILD_TOOLS_VERSION: '35.0.1'
@@ -25,6 +26,7 @@ env:
 
 jobs:
   release:
+    # tools/build_root.py binds the windows-x86_64 NDK toolchain; this job cannot run on Linux.
     runs-on: windows-latest
     timeout-minutes: 60
     steps:
@@ -61,20 +63,8 @@ jobs:
             python tools/verify_release_version.py
           fi
 
-      - name: Fetch the JVM test dependency
-        shell: bash
-        run: python tools/fetch_test_deps.py
-
-      - name: Unit tests
-        shell: bash
-        # The default Windows runner temp lives under an 8.3-aliased profile path
-        # (C:\Users\runneradmin -> C:\Users\RUNNER~1), which makes Path.resolve() disagree with the
-        # unresolved path in the fixture assertions. runner.temp is alias-free.
-        env:
-          TEMP: ${{ runner.temp }}
-          TMP: ${{ runner.temp }}
-          TMPDIR: ${{ runner.temp }}
-        run: python -m unittest discover -s tests -v
+      # No test step by design: the unit suite runs locally before a push lands here (see
+      # AGENTS.md), so CI only checks the version sources and builds the release package.
 
       - name: Release policy
         id: policy

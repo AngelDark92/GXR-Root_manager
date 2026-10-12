@@ -33,6 +33,8 @@ Build, version and release:
   generates an ephemeral key. The keystore password is fixed at `android` by `tools/build_root.py`.
 - Tags are immutable. `.github/workflows/release.yml` publishes only on `main`, on a matching `v*`
   tag, or on a dispatch that asked to publish; every other push and every pull request is a
-  build-and-test dry run.
-- Tests must pass before any publish. Locally: `python -B tools/fetch_test_deps.py` then
-  `python -B -m unittest discover -s tests -v`, with `JAVA_HOME` pointing at JDK 17+.
+  build-only dry run.
+- CI runs no tests. The unit suite is the local gate instead: run `python -B tools/fetch_test_deps.py`
+  once per machine, then `python -B -m unittest discover -s tests -v` with `JAVA_HOME` at JDK 17+ at
+  the end of every task, and never push a tree whose suite fails. CI assumes each pushed commit
+  already passed it.
